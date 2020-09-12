@@ -1,0 +1,21 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+    textarea {
+       resize: none;
+    }
+    .invalido {
+    border: 1px solid #f4524d !important;
+    }
+    .btn-gradient > .btn, .btn-gradient.btn {
+      background: linear-gradient(135deg,#E63946 0,#1D3557 80%);
+      color: #FFF;
+  }
+  body {
+   font-family: Poppins,sans-serif !important;
+   font-weight: 400;
+   font-size: 14px;
+   line-height: 26px;
+   letter-spacing: 0;
+}
