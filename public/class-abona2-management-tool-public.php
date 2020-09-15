@@ -156,8 +156,8 @@ class Abona2_Management_Tool_Public {
 
 		//se intenta realizar el insert
 		try{ 
-			$member_table = $wpdb->prefix."pre_register_member";
-			$validation_table = $wpdb->prefix."validation_email";
+			$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+			$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
 
 			$wpdb->query(
 				$wpdb->prepare("INSERT INTO $member_table ( nombre, apellido, rut, email,observaciones, vinculo_id, terms) 
@@ -187,7 +187,8 @@ class Abona2_Management_Tool_Public {
 		$variables['nombre'] = $firstname;
 		$variables['apellido'] = $lastname;
 		$variables['token'] = $token;
-		
+		$variables['url'] = get_home_url();
+
 		$template = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/confirmar-correo.html", false, stream_context_create($this->arrContextOptions));
 		foreach($variables as $key => $value)
 			{
@@ -274,11 +275,21 @@ class Abona2_Management_Tool_Public {
 
 		$uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'member-attachments/';
 		$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
-
+		$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
+		// Debemos nombrarlo de manera unica
+		// NO USAR $_FILES['inputFile']['name'] SIN NINGUNA VALIDACION !!
+		// En este ejemplo, obtenemos un unico nombre seguro desde su data binaria.
+		
+		if (!move_uploaded_file(
+			$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
+		{
+			wp_send_json_error('Fallo al intentar mover el archivo subido', 400 );
+			wp_die();
+		}
 		try{ 
-			$member_table = $wpdb->prefix."pre_register_member";
-			$validation_table = $wpdb->prefix."validation_email";
-			$file_table = $wpdb->prefix."file_user";
+			$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+			$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
+			$file_table = $wpdb->prefix. 'abona2_'."file_user";
 
 			$prepared_validation_qry = $wpdb->prepare("SELECT userId,id FROM $validation_table where token = %s",$token);
 			$validation_data = $wpdb->get_results($prepared_validation_qry);
@@ -313,16 +324,6 @@ class Abona2_Management_Tool_Public {
 			wp_send_json_error( $e, 400 );
 			wp_die();
 		}
-		// Debemos nombrarlo de manera unica
-		// NO USAR $_FILES['inputFile']['name'] SIN NINGUNA VALIDACION !!
-		// En este ejemplo, obtenemos un unico nombre seguro desde su data binaria.
-		
-		if (!move_uploaded_file(
-			$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
-		{
-			wp_send_json_error('Fallo al intentar mover el archivo subido', 400 );
-			wp_die();
-		}
 	
 		//variables correo usuario
 		$variables = array();
@@ -338,7 +339,7 @@ class Abona2_Management_Tool_Public {
 			$subject = 'Registro Completo';
 			$body = $template;
 			$headers = array('Content-Type: text/html; charset=UTF-8');
-			
+			$headers[] = 'From: SCCC <contacto@nube.site>';
 				wp_mail( $to, $subject, $body, $headers );
 	
 			$get_all_usr_data =	$wpdb -> get_results("CALL get_user_for_approval($user_id);");
@@ -356,11 +357,13 @@ class Abona2_Management_Tool_Public {
 			$variablesAdmin['titulo'] = $obj_all_user['titulo'];
 			$variablesAdmin['institucion'] = $obj_all_user['institucion'];
 			$variablesAdmin['vinculo'] = $obj_all_user['vinculo'];
-			$variablesAdmin['archivo'] = 	get_home_url().$obj_all_user['pathDoc'];
+			// $variablesAdmin['archivo'] = 	get_home_url().$obj_all_user['pathDoc'];
+			$variablesAdmin['archivo'] = 	$file_url;
 			$variablesAdmin['dirección'] = $obj_all_user['direccion'];
 			$variablesAdmin['observaciones'] = $obj_all_user['observaciones'];
 			$variablesAdmin['fechaCreacion'] = $obj_all_user['createDate'];
 			$variablesAdmin['fechaModificacion'] = $obj_all_user['modificationDate'];
+			$variablesAdmin['url'] = get_home_url();
 	
 			$templateAdmin = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/nuevo-usuario.html", false, stream_context_create($this->arrContextOptions));
 			foreach($variablesAdmin as $key => $value)
@@ -372,15 +375,18 @@ class Abona2_Management_Tool_Public {
 			$subject = 'Un nuevo usuario completo su perfil';
 			$body = $templateAdmin;
 			$headers = array('Content-Type: text/html; charset=UTF-8');
-			
+			$headers[] = 'From: SCCC <contacto@nube.site>';
+			$headers[] = 'Cc: Felipe Andrade <f.andradevalenzuela@gmail.com>';
+
 				wp_mail( $to, $subject, $body, $headers );
-	
+
 				$respuesta =  array(
 					'mensaje'=>'El usuario fue registrado exitosamente',
 					'code' => '200',
 					'firstname' => $user_name,
 					'lastname' => $user_lastname
 				);
+		
 				wp_send_json( $respuesta, 200 );
 				wp_die();
 			// $mail->Subject = 'Registro de nuevo usuario';
@@ -401,8 +407,8 @@ class Abona2_Management_Tool_Public {
 	
 		try{ 
 
-			$member_table = $wpdb->prefix."pre_register_member";
-			$validation_table = $wpdb->prefix."validation_email";
+			$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+			$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
 
 			$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido FROM $member_table WHERE email = %s",$correo);
 			$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
@@ -436,7 +442,8 @@ class Abona2_Management_Tool_Public {
 		$variables['nombre'] = $user_name;
 		$variables['apellido'] = $user_lastname;
 		$variables['token'] = $token;
-	
+		$variables['url'] = get_home_url();
+		
 		$template = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/solicitud-token.html", false, stream_context_create($this->arrContextOptions));
 		foreach($variables as $key => $value)
 			{
@@ -447,7 +454,6 @@ class Abona2_Management_Tool_Public {
 		$subject = $asunto;
 		$body = $template;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
-		
 		wp_mail( $to, $subject, $body, $headers );
 
 		$respuesta =  array(
@@ -462,7 +468,7 @@ class Abona2_Management_Tool_Public {
 
 	function verificarCorreo($correo){
 		global $wpdb;
-		$member_table = $wpdb->prefix . "pre_register_member";
+		$member_table = $wpdb->prefix . 'abona2_'. "pre_register_member";
 		$prepare_query = $wpdb->prepare("SELECT COUNT(*) FROM $member_table WHERE email = %s",$correo);
 		$getMail = $wpdb->get_var($prepare_query);
 
@@ -475,7 +481,7 @@ class Abona2_Management_Tool_Public {
 
 	function verificarCorreoToken($correo){
 		global $wpdb;
-		$member_table = $wpdb->prefix . "pre_register_member";
+		$member_table = $wpdb->prefix . 'abona2_'. "pre_register_member";
 		$prepare_query = $wpdb->prepare("SELECT COUNT(*) FROM $member_table WHERE email = %s",$correo);
 		$getMail = $wpdb->get_var($prepare_query);
 
@@ -488,7 +494,7 @@ class Abona2_Management_Tool_Public {
 
 	function verificarRut($rut){
 		global $wpdb;
-		$member_table = $wpdb->prefix . "pre_register_member";
+		$member_table = $wpdb->prefix . 'abona2_'. "pre_register_member";
 		$prepare_query = $wpdb->prepare("SELECT COUNT(*) FROM $member_table WHERE rut = %s",$rut);
 		$getRut = $wpdb->get_var($prepare_query);
 
@@ -501,7 +507,7 @@ class Abona2_Management_Tool_Public {
 
 	function verificarToken($token){
 		global $wpdb;
-		$validation_table = $wpdb->prefix."validation_email";
+		$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
 		$prepare_query = $wpdb->prepare("SELECT COUNT(*) FROM $validation_table WHERE token = %s AND estado = 0",$token);
 		$getToken =  $wpdb->get_var($prepare_query);
 
@@ -511,4 +517,5 @@ class Abona2_Management_Tool_Public {
 			wp_die();
 		}
 	}
+
 }

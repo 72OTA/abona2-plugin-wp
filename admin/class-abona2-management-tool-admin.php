@@ -284,5 +284,4 @@ class Abona2_Management_Tool_Admin {
 		wp_die();
 	}
 
-
 }

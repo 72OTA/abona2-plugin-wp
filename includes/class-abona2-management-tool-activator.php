@@ -50,7 +50,7 @@ class Abona2_Management_Tool_Activator {
 
 	public function tbl_users() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'pre_register_member';
+		$table_name = $wpdb->prefix . 'abona2_'. 'pre_register_member';
 		$create = "CREATE TABLE `$table_name` (
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`nombre` varchar(100) COLLATE utf8_spanish_ci NOT NULL,
@@ -86,7 +86,7 @@ class Abona2_Management_Tool_Activator {
 
 	public function tbl_vinculo() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'vinculo_type';
+		$table_name = $wpdb->prefix . 'abona2_'. 'vinculo_type';
 		$create = "CREATE TABLE $table_name (
 			`vinculo_id` int(11) NOT NULL AUTO_INCREMENT,
 			`nombre` varchar(40) NOT NULL,
@@ -106,7 +106,7 @@ class Abona2_Management_Tool_Activator {
 
 	public function tbl_grade() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'grade_type';
+		$table_name = $wpdb->prefix . 'abona2_'. 'grade_type';
 		$create = "CREATE TABLE $table_name (
 			`grade_id` int(11) NOT NULL AUTO_INCREMENT,
 			`nombre` varchar(100) NOT NULL,
@@ -128,7 +128,7 @@ class Abona2_Management_Tool_Activator {
 
 	public function tbl_file() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'file_user';
+		$table_name = $wpdb->prefix . 'abona2_'. 'file_user';
 		$create = "CREATE TABLE $table_name (
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`userId` int(11) NOT NULL,
@@ -145,7 +145,7 @@ class Abona2_Management_Tool_Activator {
 
 	public function tbl_estatus() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'estado_type';
+		$table_name = $wpdb->prefix . 'abona2_'. 'estado_type';
 		$create = "CREATE TABLE $table_name (
 			`estado_id` int(11) NOT NULL AUTO_INCREMENT,
 			`descripcion` varchar(100) NOT NULL,
@@ -167,7 +167,7 @@ class Abona2_Management_Tool_Activator {
 
 	public function tbl_validation() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'validation_email';
+		$table_name = $wpdb->prefix . 'abona2_'. 'validation_email';
 		$create = "CREATE TABLE $table_name (
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`userId` int(11) NOT NULL,
@@ -185,12 +185,12 @@ class Abona2_Management_Tool_Activator {
 
 	public function rlt_tables() {
 		global $wpdb;
-		$member = $wpdb->prefix . 'pre_register_member';
-		$grade = $wpdb->prefix . 'grade_type';
-		$vinculo = $wpdb->prefix . 'vinculo_type';
-		$validation = $wpdb->prefix . 'validation_email';
-		$estado = $wpdb->prefix . 'estado_type';
-		$file = $wpdb->prefix . 'file_user';
+		$member = $wpdb->prefix . 'abona2_'. 'pre_register_member';
+		$grade = $wpdb->prefix . 'abona2_'. 'grade_type';
+		$vinculo = $wpdb->prefix . 'abona2_'. 'vinculo_type';
+		$validation = $wpdb->prefix . 'abona2_'. 'validation_email';
+		$estado = $wpdb->prefix . 'abona2_'. 'estado_type';
+		$file = $wpdb->prefix . 'abona2_'. 'file_user';
 
 		$alter_keys = "ALTER TABLE $member
 		ADD KEY `vinculo` (`vinculo_id`),

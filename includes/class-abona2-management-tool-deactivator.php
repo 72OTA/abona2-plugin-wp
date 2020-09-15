@@ -33,12 +33,12 @@ class Abona2_Management_Tool_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
-		(new self)->drop_something('vinculo_type','TABLE');
-		(new self)->drop_something('grade_type','TABLE');
-		(new self)->drop_something('pre_register_member','TABLE');
-		(new self)->drop_something('file_user','TABLE');
-		(new self)->drop_something('validation_email','TABLE');
-		(new self)->drop_something('estado_type','TABLE');
+		(new self)->drop_something('abona2_vinculo_type','TABLE');
+		(new self)->drop_something('abona2_grade_type','TABLE');
+		(new self)->drop_something('abona2_pre_register_member','TABLE');
+		(new self)->drop_something('abona2_file_user','TABLE');
+		(new self)->drop_something('abona2_validation_email','TABLE');
+		(new self)->drop_something('abona2_estado_type','TABLE');
 
 		(new self)->drop_something('get_user_for_approval','PROCEDURE');
 		(new self)->drop_something('change_token_status','PROCEDURE');

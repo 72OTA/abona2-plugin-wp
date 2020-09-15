@@ -162,6 +162,7 @@ class Abona2_Management_Tool {
 		//action hook or ajax
 		$this->loader->add_action("wp_ajax_abona2_get_user", $plugin_admin, 'get_user_data');
 
+
 	}
 
 	/**
@@ -180,6 +181,7 @@ class Abona2_Management_Tool {
 		$this->loader->add_action("wp_ajax_abona2_insert_user_data", $plugin_public, 'insert_user_data');
 		$this->loader->add_action("wp_ajax_abona2_update_user_data", $plugin_public, 'update_user_data');
 		$this->loader->add_action("wp_ajax_abona2_get_token", $plugin_public, 'get_token');
+
 	}
 
 	/**

@@ -21,7 +21,7 @@
     <tbody>
     <?php
       global $wpdb;
-      $table_name = $wpdb->prefix . 'pre_register_member';
+      $table_name = $wpdb->prefix . 'abona2_'. 'pre_register_member';
       $result = $wpdb->get_results("SELECT * FROM $table_name WHERE estado_id = 2");
       foreach ($result as $print) {
         echo "
