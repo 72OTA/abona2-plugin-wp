@@ -276,10 +276,10 @@ class Abona2_Management_Tool_Public {
 		$uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'member-attachments/';
 		$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
 		$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
+		
 		// Debemos nombrarlo de manera unica
 		// NO USAR $_FILES['inputFile']['name'] SIN NINGUNA VALIDACION !!
 		// En este ejemplo, obtenemos un unico nombre seguro desde su data binaria.
-		
 		if (!move_uploaded_file(
 			$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
 		{
@@ -309,7 +309,7 @@ class Abona2_Management_Tool_Public {
 
 			
 			$prepared_user_update_qry = $wpdb->prepare(
-				"UPDATE $member_table SET direccion = %s, telefono = %s, titulo = %s, institucion = %s, secondMail = %s, cargo = %s, grade_id = %d WHERE id = %d",
+				"UPDATE $member_table SET direccion = %s, telefono = %s, titulo = %s, institucion = %s, secondMail = %s, cargo = %s, grade_id = %d, estado_id=2 WHERE id = %d",
 				$address,$phone,$title,$institution,$secondMail,$workPosition,$grade,$user_id);
 			$user_data = $wpdb->query($prepared_user_update_qry);
 
@@ -334,13 +334,7 @@ class Abona2_Management_Tool_Public {
 				{
 					$template = str_replace('{{ '.$key.' }}', $value, $template);
 				}
-
-			$to = $user_email;
-			$subject = 'Registro Completo';
-			$body = $template;
-			$headers = array('Content-Type: text/html; charset=UTF-8');
-			$headers[] = 'From: SCCC <contacto@nube.site>';
-				wp_mail( $to, $subject, $body, $headers );
+			$this->correoCompleto($user_email,$template,$user_name,$user_lastname);
 	
 			$get_all_usr_data =	$wpdb -> get_results("CALL get_user_for_approval($user_id);");
 			$obj_all_user = get_object_vars($get_all_usr_data[0]);
@@ -378,7 +372,7 @@ class Abona2_Management_Tool_Public {
 			$headers[] = 'From: SCCC <contacto@nube.site>';
 			$headers[] = 'Cc: Felipe Andrade <f.andradevalenzuela@gmail.com>';
 
-				wp_mail( $to, $subject, $body, $headers );
+			wp_mail( $to, $subject, $body, $headers );
 
 				$respuesta =  array(
 					'mensaje'=>'El usuario fue registrado exitosamente',
@@ -389,18 +383,12 @@ class Abona2_Management_Tool_Public {
 		
 				wp_send_json( $respuesta, 200 );
 				wp_die();
-			// $mail->Subject = 'Registro de nuevo usuario';
-			// $mail->addAddress($mail_approval, 'ADMIN SCCC');    
-			// $mail->addAddress('contacto@nube.site', 'ADMIN SCCC');    
-			// $mail->addAddress('eduardoquiroga@ieee.org', 'ADMIN SCCC');    
 
 	}
 
 	public function get_token() {
 	
 		global $wpdb;
-		// $params = array();
-		// parse_str($_POST['form'],$params);
 		$correo = $_POST['correo'];
 		$asunto = 'Solicitud de token SCCC';
 		$this->verificarCorreoToken($correo);
@@ -442,8 +430,7 @@ class Abona2_Management_Tool_Public {
 		$variables['nombre'] = $user_name;
 		$variables['apellido'] = $user_lastname;
 		$variables['token'] = $token;
-		$variables['url'] = get_home_url();
-		
+	
 		$template = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/solicitud-token.html", false, stream_context_create($this->arrContextOptions));
 		foreach($variables as $key => $value)
 			{
@@ -516,6 +503,16 @@ class Abona2_Management_Tool_Public {
 			wp_send_json_error( $error, 400 );
 			wp_die();
 		}
+	}
+
+	function correoCompleto($user_email,$template,$user_name,$user_lastname){
+		$to = $user_email;
+		$subject = 'Registro Completo';
+		$body = $template;
+		$headers = array('Content-Type: text/html; charset=UTF-8');
+		$headers[] = 'From: SCCC <contacto@nube.site>';
+		$headers[] = 'Cc: '.$user_name.' '. $user_lastname.' <'.$user_email.'>';
+			wp_mail( $to, $subject, $body, $headers );
 	}
 
 }

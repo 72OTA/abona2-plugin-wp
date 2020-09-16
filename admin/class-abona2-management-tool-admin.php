@@ -279,7 +279,7 @@ class Abona2_Management_Tool_Admin {
 		$id_user = $_POST['id_user'];
 		$result = $wpdb->get_results("CALL get_user_for_approval('$id_user')");
 		
-		wp_json_encode($result);
+		wp_json_encode($result,200);
 	
 		wp_die();
 	}

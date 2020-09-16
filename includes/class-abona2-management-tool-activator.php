@@ -334,13 +334,11 @@ class Abona2_Management_Tool_Activator {
 											<br>
 											<div class="form-row row">
 												<div class="form-group col-md-12">
-													<label class="form-check-label">Vínculo con la Ciencia de la
-														Computación a través de:</label>
+													<label class="form-check-label">Vínculo con la Ciencia de la Computación a través de:</label>
 													<div class="form-check form-check-inline">
 														<input class="form-check-input" type="radio" name="vinculo"
 															id="op1" value="1">
-														<label class="form-check-label" for="op1">Investigación
-															científica</label>
+														<label class="form-check-label" for="op1">Investigación científica</label>
 													</div>
 													<div class="form-check form-check-inline">
 														<input class="form-check-input" type="radio" name="vinculo"
@@ -350,15 +348,13 @@ class Abona2_Management_Tool_Activator {
 													<div class="form-check form-check-inline">
 														<input class="form-check-input" type="radio" name="vinculo"
 															id="op3" value="3">
-														<label class="form-check-label" for="op3">Ejercicio
-															profesional</label>
+														<label class="form-check-label" for="op3">Ejercicio profesional</label>
 													</div>
 												</div>
 											</div>
 											<br>
 											<div class="form-row row">
-												<div class="form-group col-md-12"><label for="comment">¿Cuál es su motivación para ser
-														miembro de la SCCC?</label>
+												<div class="form-group col-md-12"><label for="comment">¿Cuál es su motivación para ser miembro de la SCCC?</label>
 													<textarea class="form-control" name="comment" id="comment"
 														type="text" placeholder="Quiero ser parte de la sccc ya que..."
 														rows="3" minlength="200" maxlength="1500"
@@ -1177,7 +1173,7 @@ class Abona2_Management_Tool_Activator {
 		<div class="form-row row">
 												<input class="form-control d-none" name="token" id="token" type="text">
 		<div class="form-group col-md-12">
-													<label for="customFIle">El formato debe ser PDF y no mayor a 5mb</label>
+													<label for="customFile">El formato debe ser PDF y no mayor a 5mb</label>
 		<div class="custom-file" id="customFile" lang="es">
 														<input type="file" class="form-control custom-file-input" id="inputFile" name="inputFile" aria-describedby="fileHelp" accept="application/pdf">
 		<label class="custom-file-label" for="inputFile">Seleccionar archivo que certifique su: titulo profesional, grado académico, certificado de alumno regular o contrato de trabajo.</label></div>
