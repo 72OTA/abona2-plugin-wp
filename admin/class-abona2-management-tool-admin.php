@@ -22,7 +22,15 @@
  */
 
 class Abona2_Management_Tool_Admin {
+	public $arrContextOptions=array(
+		"ssl"=>array(
+			"verify_peer"=>false,
+			"verify_peer_name"=>false,
+		),
+	); 
+
 	public $valid_pages = array("abona2-management-tool","members-management","pending-approve-management","pending-pay-management","pre-members-management","rejected-members-management");
+
 	/**
 	 * The ID of this plugin.
 	 *
@@ -81,6 +89,7 @@ class Abona2_Management_Tool_Admin {
 			wp_enqueue_style( "datatables", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/jquery.dataTables.min.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "sweetalert", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/sweetalert.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "fontawesome", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/fontawesome.all.css', array(), $this->version, 'all' );
+			wp_enqueue_style( "alertify", plugin_dir_url( __FILE__ ) . 'css/alertify.min.css', array(), $this->version, 'all' );
 		}
 		
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/abona2-management-tool-admin.css', array(), $this->version, 'all' );
@@ -117,7 +126,7 @@ class Abona2_Management_Tool_Admin {
 			wp_enqueue_script( "sweetalert-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/sweetalert.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "validate-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/jquery.validate.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/abona2-management-tool-admin.js', array( 'datatables-js' ), $this->version, false );
-
+			wp_enqueue_script( "alertify-js", plugin_dir_url( __FILE__ ) . 'js/alertify.min.js', array( 'jquery' ), $this->version, false );
 			wp_localize_script($this->plugin_name,'abona2_vars', array(
 				"name" => "Abona2",
 				"author" => "Felipe Andrade",
@@ -241,6 +250,7 @@ class Abona2_Management_Tool_Admin {
 	}
 
 	public function abona2_pending_approbe_management() {
+		$this->getFromView();
 		ob_start();
 		
 		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-pending-approbe-members.php");
@@ -277,10 +287,75 @@ class Abona2_Management_Tool_Admin {
 		//handler ajax request
 		global $wpdb;
 		$id_user = $_POST['id_user'];
-		$result = $wpdb->get_results("CALL get_user_for_approval('$id_user')");
+		$result = $wpdb->get_results("CALL get_user_for_approval('$id_user')",ARRAY_A);
 		
-		wp_json_encode($result,200);
-	
+		wp_send_json($result,200);
+		// var_dump($result[0]);
+		wp_die();
+	}
+
+	public function getFromView() {
+		if (isset($_GET['userId'])) {
+			$userId = $_GET['userId'];
+			  echo '<script>getUserData('.$userId.',1)</script>';
+		  }
+		// if (isset($_GET['approve'])) {
+		// $wpdb->query("UPDATE $table_name SET pendiente = 1 WHERE id='$approve_id'");
+		// echo "<script>location.reload()";
+		// }
+		// if (isset($_GET['reject'])) {
+		// $reject_id = $_GET['reject'];
+		// $wpdb->query("UPDATE $table_name SET pendiente = -1 WHERE id='$reject_id'");
+		// echo "<script>location.reload()";
+		// }
+	}
+
+
+	public function approbe_user() {
+		global $wpdb;
+		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+		$id_user = $_POST['id_user'];
+		$wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
+		
+		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones FROM $member_table WHERE id = %s",$id_user);
+		$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
+
+		$obj_usuario = $datos_usuario[0];
+		$user_id = $obj_usuario['id'];
+		$user_name = $obj_usuario['nombre'];
+		$user_lastname = $obj_usuario['apellido'];
+		$user_observaciones = $obj_usuario['observaciones'];
+
+		$variablesAdmin = array();
+		$variablesAdmin['nombre'] = $user_name;
+		$variablesAdmin['apellido'] = $user_lastname;
+		$variablesAdmin['descripcion'] = $user_observaciones;
+		$variablesAdmin['token'] = $user_id;
+		$variablesAdmin['url'] = get_home_url();
+
+		$templateAdmin = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/aprobado.html", false, stream_context_create($this->arrContextOptions));
+		foreach($variablesAdmin as $key => $value)
+			{
+				$templateAdmin = str_replace('{{ '.$key.' }}', $value, $templateAdmin);
+			}
+
+		$to = 'contacto@nube.site';
+		$subject = 'SU SOLICITUD FUE APROBADA';
+		$body = $templateAdmin;
+		$headers = array('Content-Type: text/html; charset=UTF-8');
+		$headers[] = 'From: SCCC <contacto@nube.site>';
+		$headers[] = 'Cc: Felipe Andrade <f.andradevalenzuela@gmail.com>';
+
+		wp_mail( $to, $subject, $body, $headers );
+
+	$respuesta =  array(
+		'mensaje'=>'El usuario fue aprobado exitosamente',
+		'code' => '200',
+		'user_name' => $user_name,
+		'user_lastname' => $user_lastname,
+	);
+		
+		wp_send_json( $respuesta, 200 );
 		wp_die();
 	}
 

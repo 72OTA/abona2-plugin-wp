@@ -10,8 +10,9 @@
           alertify.alert('El tamaño del archivo excede el máximo','El tamaño del archivo no debe superar los 5mb');
           document.getElementById("inputFile").value = "";
           }else{
-              var nextSibling = e.target.nextElementSibling
-              nextSibling.innerText = fileName
+            document.querySelector("#customFile > label").textContent = fileName;
+            //   var nextSibling = e.target.nextElementSibling
+            //   nextSibling.innerText = fileName
           }
         }
       })

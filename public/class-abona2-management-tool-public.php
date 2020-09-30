@@ -273,19 +273,6 @@ class Abona2_Management_Tool_Public {
 			wp_die();
 		}
 
-		$uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'member-attachments/';
-		$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
-		$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
-		
-		// Debemos nombrarlo de manera unica
-		// NO USAR $_FILES['inputFile']['name'] SIN NINGUNA VALIDACION !!
-		// En este ejemplo, obtenemos un unico nombre seguro desde su data binaria.
-		if (!move_uploaded_file(
-			$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
-		{
-			wp_send_json_error('Fallo al intentar mover el archivo subido', 400 );
-			wp_die();
-		}
 		try{ 
 			$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
 			$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
@@ -298,6 +285,20 @@ class Abona2_Management_Tool_Public {
 			$obj_validation = get_object_vars($validation_data[0]);
 			$user_id = $obj_validation['userId'];
 			$token_id = $obj_validation['id'];
+
+			$uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'member-attachments/';
+			$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']).$user_id,$ext);
+			$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
+			
+			// Debemos nombrarlo de manera unica
+			// NO USAR $_FILES['inputFile']['name'] SIN NINGUNA VALIDACION !!
+			// En este ejemplo, obtenemos un unico nombre seguro desde su data binaria.
+			if (!move_uploaded_file(
+				$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
+			{
+				wp_send_json_error('Fallo al intentar mover el archivo subido', 400 );
+				wp_die();
+			}
 
 			$prepared_user_qry = $wpdb->prepare("SELECT email,nombre,apellido FROM $member_table where id = %d",$user_id);
 			$user_data = $wpdb->get_results($prepared_user_qry);

@@ -243,7 +243,29 @@ class Abona2_Management_Tool_Activator {
 		ON usr.vinculo_id = vinculo.vinculo_id 
 		INNER JOIN ". $file. " AS doc 
 		ON doc.userId = usr.Id 
-		WHERE usr.id = idUsuario;";
+		WHERE usr.id = idUsuario
+		ORDER BY doc.id DESC
+		LIMIT 1;";
+		
+		$get_pre_user = "CREATE PROCEDURE `get_pre_user`(IN `idUsuario` INT(11) UNSIGNED) COMMENT 'SP para obtener los datos del usuario pre registrado' 
+		NOT DETERMINISTIC READS SQL DATA SQL SECURITY DEFINER 
+		SELECT DISTINCT 
+		usr.nombre, 
+		usr.apellido, 
+		usr.rut, 
+		usr.email, 
+		grado.nombre as grado, 
+		vinculo.nombre as vinculo, 
+		usr.observaciones, 
+		usr.createDate, 
+		usr.modificationDate 
+		FROM " .$member. " AS usr 
+		INNER JOIN " .$grade. " AS grado 
+		ON usr.grade_id = grado.grade_id 
+		INNER JOIN " .$vinculo. " AS vinculo 
+		ON usr.vinculo_id = vinculo.vinculo_id 
+		WHERE usr.id = idUsuario
+        LIMIT 1;";
 		  
 		$events = "CREATE EVENT `change_token_status_recurring` 
 		ON SCHEDULE EVERY 30 MINUTE 
@@ -284,7 +306,7 @@ class Abona2_Management_Tool_Activator {
 
 		$wpdb->query($events);
 		$wpdb->query($get_user_for_approval);
-
+		$wpdb->query($get_pre_user);
 		//Disipadores
 		dbDelta($update_time_token);
 		dbDelta($update_time);

@@ -786,23 +786,18 @@ a.es-button {
                                                                             <tbody>
                                                                                 <tr>
                                                                                     <td class="esd-block-text es-m-txt-l es-p15t" align="left">
-                                                                                        <h3>Un nuevo usuario a completado su registro,<br><br>su nombre es:&nbsp;{{ nombre }} {{ apellido }},</h3>
+                                                                                        <h3>Muchas gracias {{ nombre }} {{ apellido }},</h3>
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td class="esd-block-text es-p15t es-p10b" align="left">
-                                                                                        <ul>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">RUT: {{ rut }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Correo: {{ correo }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Teléfono: {{ telefono }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Grado: {{ grado }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Titulo: {{ titulo }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Institución a la que pertenece: {{ institucion }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Vínculo con la SCCC: {{ vinculo }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Documentación de respaldo: {{ archivo }}</li>
-                                                                                            <li style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Domicilio: {{ dirección }}</li>
-                                                                                        </ul>
-                                                                                        <p style="font-size: 14px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Observaciones del usuario: {{ observaciones }}<br><br><br>Fecha pre registro: {{ fechaCreacion }}<br>Fecha datos completados: {{ fechaModificacion }}</p>
+                                                                                        <p style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">Fuiste aprobado para continuar con tu proceso de membresía, a continuación,&nbsp;le solicitaremos que finalice el pago de su membresía.<span style="font-size:10px;"></span><span style="font-size:10px;"></span><br><span style="font-size:10px;">(considere que las membresías que respectan a la sociedad son anuales, esta solo se debe pagar 1 vez al año)</span><br></p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td class="esd-block-text es-p15t es-p10b" align="left">
+                                                                                        <p style="font-size: 16px; color: #777777; font-family: 'open sans', 'helvetica neue', helvetica, arial, sans-serif;">La respuesta del aprobador fue la siguiente: <br> 
+                                                                                            <span style="font-size:10px;">{{ descripcion }}</span></p>
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
@@ -833,7 +828,19 @@ a.es-button {
                                                                         <table width="100%" cellspacing="0" cellpadding="0">
                                                                             <tbody>
                                                                                 <tr>
-                                                                                    <td class="esd-block-button es-p30t es-p15b" align="center"><span class="es-button-border" style="background: #063ea8;"><a href="{{ url }}/wp-admin/admin.php?page=pending-approve-management&userId={{ id }}" class="es-button" target="_blank" style="font-weight: normal; border-width: 15px 30px; color: #ffffff; font-size: 18px; background: #063ea8; border-color: #063ea8;">Revisar registro</a></span></td>
+                                                                                    <td class="esd-block-text" align="center">
+                                                                                        <h2 style="color: #333333;">Ultimo paso</h2>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td class="esd-block-text es-p15t" align="center">
+                                                                                        <p style="font-size: 16px; color: #777777;">Finalice el pago asociado a su membresía en el siguiente botón:<br></p>
+                                                                                        <!-- <p style="font-size: 20px; color: #777777;"><strong>{{ token }}</strong></p> -->
+                                                                                        <p style="font-size: 16px; color: #777777;">&nbsp;para finalizar el proceso.</p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td class="esd-block-button es-p30t es-p15b" align="center"><span class="es-button-border" style="background: #063ea8;"><a href="{{ url }}/completar-credenciales?token={{ token }}" class="es-button" target="_blank" style="font-weight: normal; border-width: 15px 30px; color: #ffffff; font-size: 18px; background: #063ea8; border-color: #063ea8;">Pagar membresía</a></span></td>
                                                                                 </tr>
                                                                             </tbody>
                                                                         </table>
@@ -869,6 +876,11 @@ a.es-button {
                                                                                 <tr>
                                                                                     <td class="esd-block-text es-p35b" align="center">
                                                                                         <p><b>Sociedad Chilena de Ciencia&nbsp;de la Computación</b></p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td esdev-links-color="#777777" align="left" class="esd-block-text es-m-txt-c es-p5b">
+                                                                                        <p style="color: #777777;">Si usted no creo una cuenta usando esta dirección de correo, por favor ignore este email.</p>
                                                                                     </td>
                                                                                 </tr>
                                                                             </tbody>

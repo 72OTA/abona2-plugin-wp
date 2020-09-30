@@ -41,6 +41,7 @@ class Abona2_Management_Tool_Deactivator {
 		(new self)->drop_something('abona2_estado_type','TABLE');
 
 		(new self)->drop_something('get_user_for_approval','PROCEDURE');
+		(new self)->drop_something('get_pre_user','PROCEDURE');
 		(new self)->drop_something('change_token_status','PROCEDURE');
 
 		(new self)->drop_something('change_token_status_recurring','EVENT');

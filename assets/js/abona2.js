@@ -21,12 +21,66 @@ var getUserData = (id,tipo) => {
         success: function (resultado) {
             // document.getElementById('userModal') = innerHTML(resultado);
             jQuery('#loadingModal').hide();
-            crearModal(JSON.parse(resultado),tipo);
+            crearModal(resultado,tipo,id);
         }
     }).responseJSON;
 }
 
-var crearModal = (user,tipo) => {
+var aprobar = (id) => {
+    alertify.confirm('Aprobación', '¿Está seguro que desea aprobar a este usuario?', 
+        function(){ 
+            jQuery.ajax({
+                url: abona2_vars.ajaxurl,
+                type: 'post',
+                data: {
+                    action: 'abona2_approbe_user',
+                    id_user: id
+                },
+                beforeSend: function () {
+                    jQuery('#loadingModal').show();
+                },
+                success: function (resultado) {
+                    // document.getElementById('userModal') = innerHTML(resultado);
+                    datatableLang("#datatable-abona2");
+                    jQuery('#loadingModal').hide();
+                    // Swal.fire(
+                    //     'Good job!',
+                    //     'You clicked the button!',
+                    //     'success'
+                    //   );
+                }
+            }).responseJSON;
+        }
+        , 
+        function(){ alertify.error('Cancelado')});
+
+}
+
+var datatableLang = (tableName) => {
+    if (jQuery(tableName).length) {
+        jQuery(tableName).DataTable({
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ resultados por página",
+                "zeroRecords": "No se encontro nada - lo sentimos",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay resultados",
+                "infoFiltered": "(filtrado desde _MAX_ resultados totales)",
+                "sSearch": "Buscar",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "emptyTable": "No hay contenido disponible en la tabla",
+                "paginate": {
+                    "first": "Primera",
+                    "last": "Ultima",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    }
+}
+
+var crearModal = (user,tipo,id) => {
     jQuery('#userModal').remove();
     var modal = `<div class="modal" data-backdrop="static" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userInfo"
     aria-hidden="true">
@@ -84,7 +138,7 @@ var crearModal = (user,tipo) => {
                         <div class="col">
                             <label>Documento de respaldo</label>
                             <p><a target="_blank"
-                                    href="https://nube.site/wp-content/themes/sccc/${user[0].pathDoc}">Revisar
+                                    href="${user[0].pathDoc}">Revisar
                                     Documento</a></p>
                         </div>
                         <div class="col">
@@ -110,9 +164,7 @@ var crearModal = (user,tipo) => {
             switch (tipo) {
                 case 1:
                     modal += `
-                    <a href="admin.php?page=abona2/Abonados.php&approve=$userId">
-                        <button type="button" class="btn btn-success">Aprobar</button>
-                    </a>
+                        <button type="button" class="btn btn-success" onClick="aprobar(${id});">Aprobar</button>
                     <a href="admin.php?page=abona2/Abonados.php&reject=$userId">
                         <button type="button" class="btn btn-danger">Rechazar</button>
                     </a>
@@ -154,29 +206,4 @@ var crearModal = (user,tipo) => {
 
     jQuery('#wpbody-content').append(modal);
     jQuery('#userModal').modal('show');
-}
-
-
-var datatableLang = (tableName) => {
-    if (jQuery(tableName).length > 0) {
-        jQuery(tableName).DataTable({
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ resultados por página",
-                "zeroRecords": "No se encontro nada - lo sentimos",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay resultados",
-                "infoFiltered": "(filtrado desde _MAX_ resultados totales)",
-                "sSearch": "Buscar",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "emptyTable": "No hay contenido disponible en la tabla",
-                "paginate": {
-                    "first": "Primera",
-                    "last": "Ultima",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
-            }
-        });
-    }
 }
