@@ -315,21 +315,22 @@ class Abona2_Management_Tool_Admin {
 		global $wpdb;
 		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
 		$id_user = $_POST['id_user'];
-		$wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
+		$mensaje = $_POST['mensaje'];
+		// $wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
 		
-		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones FROM $member_table WHERE id = %s",$id_user);
+		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones,email FROM $member_table WHERE id = %s",$id_user);
 		$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
 
 		$obj_usuario = $datos_usuario[0];
 		$user_id = $obj_usuario['id'];
 		$user_name = $obj_usuario['nombre'];
 		$user_lastname = $obj_usuario['apellido'];
-		$user_observaciones = $obj_usuario['observaciones'];
+		$user_email = $obj_usuario['email'];
 
 		$variablesAdmin = array();
 		$variablesAdmin['nombre'] = $user_name;
 		$variablesAdmin['apellido'] = $user_lastname;
-		$variablesAdmin['descripcion'] = $user_observaciones;
+		$variablesAdmin['descripcion'] = $mensaje;
 		$variablesAdmin['token'] = $user_id;
 		$variablesAdmin['url'] = get_home_url();
 
@@ -348,14 +349,73 @@ class Abona2_Management_Tool_Admin {
 
 		wp_mail( $to, $subject, $body, $headers );
 
-	$respuesta =  array(
-		'mensaje'=>'El usuario fue aprobado exitosamente',
-		'code' => '200',
-		'user_name' => $user_name,
-		'user_lastname' => $user_lastname,
-	);
+		$respuesta =  array(
+			'mensaje'=>'El usuario fue aprobado exitosamente',
+			'code' => '200',
+			'user_name' => $user_name,
+			'user_lastname' => $user_lastname,
+			'mensaje' => $mensaje
+		);
 		
 		wp_send_json( $respuesta, 200 );
+		wp_die();
+	}
+
+	public function reject_user() {
+		global $wpdb;
+		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+		$id_user = $_POST['id_user'];
+		$mensaje = $_POST['mensaje'];
+		// $wpdb->query("UPDATE $member_table SET estado_id = 3 WHERE id='$id_user'");
+		
+		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones,email FROM $member_table WHERE id = %s",$id_user);
+		$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
+
+		$obj_usuario = $datos_usuario[0];
+		$user_id = $obj_usuario['id'];
+		$user_name = $obj_usuario['nombre'];
+		$user_lastname = $obj_usuario['apellido'];
+		$user_email = $obj_usuario['email'];
+
+		$variablesAdmin = array();
+		$variablesAdmin['nombre'] = $user_name;
+		$variablesAdmin['apellido'] = $user_lastname;
+		$variablesAdmin['descripcion'] = $mensaje;
+		$variablesAdmin['token'] = $user_id;
+		$variablesAdmin['url'] = get_home_url();
+
+		$templateAdmin = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/rechazado.html", false, stream_context_create($this->arrContextOptions));
+		foreach($variablesAdmin as $key => $value)
+			{
+				$templateAdmin = str_replace('{{ '.$key.' }}', $value, $templateAdmin);
+			}
+
+		$to = 'contacto@nube.site';
+		$subject = 'SU SOLICITUD FUE RECHAZADA';
+		$body = $templateAdmin;
+		$headers = array('Content-Type: text/html; charset=UTF-8');
+		$headers[] = 'From: SCCC <contacto@nube.site>';
+		$headers[] = 'Cc: '.$user_name.' '.$user_lastname.' <'.$user_email.'>';
+
+		wp_mail( $to, $subject, $body, $headers );
+
+		$respuesta =  array(
+			'mensaje'=>'El usuario fue rechazado exitosamente',
+			'code' => '200',
+			'user_name' => $user_name,
+			'user_lastname' => $user_lastname,
+			'mensaje' => $mensaje
+		);
+		
+		wp_send_json( $respuesta, 200 );
+		wp_die();
+	}
+
+	public function get_pre_register_users() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'abona2_'. 'pre_register_member';
+		$result = $wpdb->get_results("SELECT * FROM $table_name WHERE estado_id = 2");
+		echo wp_send_json($result);
 		wp_die();
 	}
 
