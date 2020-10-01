@@ -39,6 +39,7 @@ class Abona2_Management_Tool_Deactivator {
 		(new self)->drop_something('abona2_file_user','TABLE');
 		(new self)->drop_something('abona2_validation_email','TABLE');
 		(new self)->drop_something('abona2_estado_type','TABLE');
+		(new self)->drop_something('abona2_membership_type','TABLE');
 
 		(new self)->drop_something('get_user_for_approval','PROCEDURE');
 		(new self)->drop_something('get_pre_user','PROCEDURE');

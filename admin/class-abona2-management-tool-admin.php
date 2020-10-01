@@ -334,6 +334,7 @@ class Abona2_Management_Tool_Admin {
 		$variablesAdmin['token'] = $user_id;
 		$variablesAdmin['url'] = get_home_url();
 
+		$this->membership_order();
 		$templateAdmin = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/aprobado.html", false, stream_context_create($this->arrContextOptions));
 		foreach($variablesAdmin as $key => $value)
 			{
@@ -345,7 +346,7 @@ class Abona2_Management_Tool_Admin {
 		$body = $templateAdmin;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
 		$headers[] = 'From: SCCC <contacto@nube.site>';
-		$headers[] = 'Cc: Felipe Andrade <f.andradevalenzuela@gmail.com>';
+		$headers[] = 'Cc: '.$user_name.' '.$user_lastname.' <'.$user_email.'>';
 
 		wp_mail( $to, $subject, $body, $headers );
 
@@ -366,7 +367,7 @@ class Abona2_Management_Tool_Admin {
 		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
 		$id_user = $_POST['id_user'];
 		$mensaje = $_POST['mensaje'];
-		// $wpdb->query("UPDATE $member_table SET estado_id = 3 WHERE id='$id_user'");
+		$wpdb->query("UPDATE $member_table SET estado_id = 3 WHERE id='$id_user'");
 		
 		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones,email FROM $member_table WHERE id = %s",$id_user);
 		$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
@@ -411,11 +412,88 @@ class Abona2_Management_Tool_Admin {
 		wp_die();
 	}
 
+	public function membership_order() {
+		global $wpdb;
+
+
+		$membership = $wpdb->prefix . 'abona2_'. 'membership_type';
+		$product = $wpdb->get_var( 
+			$wpdb->prepare("SELECT product_id FROM $membership WHERE description = %s ORDER BY id DESC",'INDIVIDUAL') 
+		);
+		$address = array(
+				'first_name' => 'Felipe',
+				'last_name'  => 'Andrade',
+				'company'    => 'UNAB',
+				'email'      => 'f.andradevalenzuela@gmail.com',
+				'phone'      => '+56986606669',
+				'address_1'  => 'Daniel de la vega 0283',
+				'address_2'  => '',
+				'city'       => 'Santiago',
+				'state'      => 'Región metropolitana',
+				'postcode'   => '',
+				'country'    => 'CL'
+			);
+
+		$order = wc_create_order();
+
+		$order->add_product( wc_get_product($product));
+		$order->set_address($address,'billing');
+		$order->set_address($address,'shipping');
+
+		$order->calculate_totals();
+
+		update_post_meta( $order->id, '_payment_method', 'transbank' );
+    	update_post_meta( $order->id, '_payment_method_title', 'Transbank Webpay Plus' );
+
+		$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+		$result = $available_gateways[ 'transbank' ]->process_payment( $order->get_id() );
+		// Redirect to success/confirmation/payment page
+		var_dump(esc_url($order->get_checkout_payment_url()));
+		if ( $result['result'] == 'success' ) {
+
+			$result = apply_filters( 'woocommerce_payment_successful_result', $result, $order->get_id() );
+
+			wp_redirect( $result['redirect'] );
+			exit;
+		}
+	}
+
 	public function get_pre_register_users() {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'abona2_'. 'pre_register_member';
 		$result = $wpdb->get_results("SELECT * FROM $table_name WHERE estado_id = 2");
 		echo wp_send_json($result);
+		wp_die();
+	}
+
+	public function membership_configuration() {
+		global $wpdb;
+		$membership = $wpdb->prefix . 'abona2_'. 'membership_type';
+		$product_id = $_POST['product_id'];
+		$type = $_POST['type'];
+
+		if($type == 1){
+			$descripcion = 'INDIVIDUAL';
+		}else if($type == 2){
+			$descripcion = 'INSTITUCIONAL';
+		}
+		
+		try{
+			$wpdb->query(
+				$wpdb->prepare("INSERT INTO $membership ( description, product_id) 
+				VALUES ( %s, %d)", $descripcion, $product_id)
+			);
+		} catch(Exception $e){ 
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
+		$result =  array(
+			'mensaje'=>'El usuario fue rechazado exitosamente',
+			'code' => '200',
+			'status'=> 'success'
+		);
+		
+		wp_send_json($result,200);
 		wp_die();
 	}
 

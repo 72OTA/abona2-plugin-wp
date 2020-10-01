@@ -42,6 +42,7 @@ class Abona2_Management_Tool_Activator {
 		(new self)->tbl_validation();
 		(new self)->tbl_users();
 		(new self)->tbl_estatus();
+		(new self)->tbl_membership();
 		(new self)->rlt_tables();
 		(new self)->page_pre_reg();
 		(new self)->page_complete_reg();
@@ -183,6 +184,21 @@ class Abona2_Management_Tool_Activator {
 		}
 	}
 
+	public function tbl_membership() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'abona2_'. 'membership_type';
+		$create = "CREATE TABLE $table_name (
+			`id` int(11) NOT NULL AUTO_INCREMENT,
+			`description` varchar(250) NOT NULL,
+			`product_id` bigint(20) NOT NULL,
+			`modificationDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY(id)
+			) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			dbDelta($create);
+		}
+	}
+
 	public function rlt_tables() {
 		global $wpdb;
 		$member = $wpdb->prefix . 'abona2_'. 'pre_register_member';
@@ -191,6 +207,8 @@ class Abona2_Management_Tool_Activator {
 		$validation = $wpdb->prefix . 'abona2_'. 'validation_email';
 		$estado = $wpdb->prefix . 'abona2_'. 'estado_type';
 		$file = $wpdb->prefix . 'abona2_'. 'file_user';
+		$membership = $wpdb->prefix . 'abona2_'. 'membership_type';
+		$product_meta = $wpdb->prefix .'wc_product_meta_lookup';
 
 		$alter_keys = "ALTER TABLE $member
 		ADD KEY `vinculo` (`vinculo_id`),
@@ -200,7 +218,10 @@ class Abona2_Management_Tool_Activator {
 		ADD KEY `validation_user` (`userId`);
 		ALTER TABLE $file
 		ADD KEY `file_user` (`userId`),
-		ADD KEY `file_token` (`tokenId`);";
+		ADD KEY `file_token` (`tokenId`);
+		ALTER TALBE $membership
+		ADD KEY `product_membership` (`product_id`);
+		";
 
 		$alter_constraints = "ALTER TABLE $member
 		ADD CONSTRAINT `grade_user` FOREIGN KEY (`grade_id`) REFERENCES $grade (`grade_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -213,7 +234,11 @@ class Abona2_Management_Tool_Activator {
 		ALTER TABLE $file
 		ADD CONSTRAINT `file_token` FOREIGN KEY (`tokenId`) REFERENCES $validation (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
 		ADD CONSTRAINT `file_user` FOREIGN KEY (`userId`) REFERENCES $member (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-		COMMIT;";
+		COMMIT;
+		ALTER TABLE $membership
+		ADD CONSTRAINT `product_membership` FOREIGN KEY (`product_id`) REFERENCES $product_meta (`product_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		COMMIT;
+		";
 
 		$change_token_status = "CREATE PROCEDURE `change_token_status`() COMMENT 'Update estado de validation token' 
 		NOT DETERMINISTIC MODIFIES SQL DATA SQL SECURITY DEFINER 
@@ -273,7 +298,7 @@ class Abona2_Management_Tool_Activator {
 		COMMENT 'Vencer tokens' DO CALL change_token_status();";
 
 		$update_time_token = "CREATE TRIGGER `update_time_token` BEFORE UPDATE ON $validation 
-		FOR EACH ROW set new.modificationDate = CURRENT_TIMESTAMP + INTERVAL + 3 HOUR;";
+		FOR EACH ROW set new.modificationDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR;";
 
 		$update_time = "CREATE TRIGGER `update_time` BEFORE UPDATE ON $member 
 		FOR EACH ROW set new.modificationDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR, 
@@ -281,7 +306,7 @@ class Abona2_Management_Tool_Activator {
 
 		$validation_time_lapse ="CREATE TRIGGER `validation_timelapse` BEFORE INSERT ON $validation 
 		FOR EACH ROW set new.tiempo = CURRENT_TIMESTAMP + INTERVAL + 8 HOUR,
-		new.modificationDate = CURRENT_TIMESTAMP + INTERVAL + 3 HOUR;";
+		new.modificationDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR;";
 
 		$update_time_user = "CREATE TRIGGER `update_time_user` BEFORE INSERT ON $member 
 		FOR EACH ROW set new.createDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR;";
