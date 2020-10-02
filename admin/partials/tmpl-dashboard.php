@@ -82,7 +82,6 @@ $members = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 5"
     );
     $individual = $individual+0;
     $institucional = $institucional+0;
-
     ?>
     <div class="row">
         <div class="col-md-6">
