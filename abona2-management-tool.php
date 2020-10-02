@@ -15,8 +15,8 @@
  * @wordpress-plugin
  * Plugin Name:       Abona2 management tools
  * Plugin URI:        https://chiledevelopers.com
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           2.0.0
+ * Description:       Plugin para el control de membresía, automatizando el flujo respectivo a modo de aprobación, rechazo y envio de correos.
+ * Version:           3.0.0
  * Author:            Felipe Andrade
  * Author URI:        https://chiledevelopers.com
  * License:           GPL-2.0+
