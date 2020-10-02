@@ -162,8 +162,10 @@ class Abona2_Management_Tool {
 		//action hook or ajax
 		$this->loader->add_action("wp_ajax_abona2_get_user", $plugin_admin, 'get_user_data');
 		$this->loader->add_action("wp_ajax_abona2_approbe_user", $plugin_admin, 'approbe_user');
-
-
+		$this->loader->add_action("wp_ajax_abona2_reject_user", $plugin_admin, 'reject_user');
+		$this->loader->add_action("wp_ajax_abona2_save_membership", $plugin_admin, 'membership_configuration');
+		$this->loader->add_action("wp_ajax_abona2_pre_reg_users", $plugin_admin, 'get_pre_register_users');
+		$this->loader->add_action( 'woocommerce_payment_complete',  $plugin_admin,'alert_membership',10, 1);
 	}
 
 	/**
@@ -191,7 +193,7 @@ class Abona2_Management_Tool {
 	 * @since    1.0.0
 	 */
 	public function run() {
-		$this->loader->run();
+			$this->loader->run();
 	}
 
 	/**

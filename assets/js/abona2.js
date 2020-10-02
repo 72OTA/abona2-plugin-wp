@@ -26,38 +26,125 @@ var getUserData = (id,tipo) => {
     }).responseJSON;
 }
 
-var aprobar = (id) => {
-    alertify.confirm('Aprobación', '¿Está seguro que desea aprobar a este usuario?', 
-        function(){ 
-            jQuery.ajax({
-                url: abona2_vars.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'abona2_approbe_user',
-                    id_user: id
-                },
-                beforeSend: function () {
-                    jQuery('#loadingModal').show();
-                },
-                success: function (resultado) {
-                    // document.getElementById('userModal') = innerHTML(resultado);
-                    datatableLang("#datatable-abona2");
-                    jQuery('#loadingModal').hide();
-                    // Swal.fire(
-                    //     'Good job!',
-                    //     'You clicked the button!',
-                    //     'success'
-                    //   );
-                }
-            }).responseJSON;
-        }
-        , 
-        function(){ alertify.error('Cancelado')});
+var aprobar = (id,opc) => {
+    modalObservacion(id,opc)
+}
 
+var cancelarPopup = () => {
+    swal("Cancelaste!", "", "error");
+}
+
+var enviarAprobacion = (id) => {
+        var msg = jQuery('#mensajeApp').val();
+        jQuery.ajax({
+            url: abona2_vars.ajaxurl,
+            type: 'post',
+            data: {
+                action: 'abona2_approbe_user',
+                id_user: id,
+                mensaje: msg
+            },
+            beforeSend: function () {
+                jQuery('#loadingModal').show();
+            },
+            success: function (resultado) {
+                // document.getElementById('userModal') = innerHTML(resultado);
+                jQuery('#loadingModal').hide();
+                jQuery('#userModal').hide();
+                jQuery('#observacionModal').hide();
+                swal({
+                    title: "Buen trabajo!", 
+                    text: "Aprobaste al usuario!", 
+                    type:"success",
+                    closeOnConfirm: false
+                },
+                function(){
+                    location.reload();
+                });
+            }
+        }).responseJSON;
+    }
+
+var enviarRechazo = (id) => {
+    var msg = jQuery('#mensajeApp').val();
+    jQuery.ajax({
+        url: abona2_vars.ajaxurl,
+        type: 'post',
+        data: {
+            action: 'abona2_reject_user',
+            id_user: id,
+            mensaje: msg
+        },
+        beforeSend: function () {
+            jQuery('#loadingModal').show();
+        },
+        success: function (resultado) {
+            // document.getElementById('userModal') = innerHTML(resultado);
+            jQuery('#loadingModal').hide();
+            jQuery('#userModal').hide();
+            jQuery('#observacionModal').hide();
+            swal({
+                title: "Buen trabajo!", 
+                text: "Rechazaste al usuario!", 
+                type:"error",
+                closeOnConfirm: false
+            },
+            function(){
+                location.reload();
+            });
+        }
+    }).responseJSON;
+}
+
+let guardarMembresia = (type) => {
+    switch (type) {
+        case 1:
+            membresia = 'Membresía individual';
+            var product = jQuery('#membresiaIndividual option:selected').val();
+            if(!product){
+                 swal("Algo salio mal!", `Seleccione un producto para asociar`, "error");
+                 return
+            }
+            break;
+        case 2:
+            membresia = 'Membresía institucional';
+            var product = jQuery('#membresiaInstitucional option:selected').val();
+            if(!product){
+                 swal("Algo salio mal!", `Seleccione un producto para asociar`, "error");
+                 return
+            }
+            break;
+        default:
+            break;
+    }
+    jQuery.ajax({
+        url: abona2_vars.ajaxurl,
+        type: 'post',
+        data: {
+            action: 'abona2_save_membership',
+            product_id: product,
+            type: type
+        },
+        beforeSend: function() {
+            jQuery('#loadingModal').show();
+        },
+        success: function (resultado) {
+            jQuery('#loadingModal').hide();
+            if (resultado.status === "success") {
+                swal("Buen trabajo!", `Asociaste este producto a la ${membresia}!`, "success");
+            } else if (resultado.status === "error"){
+                swal("Algo salio mal!", `No se pudo completar la asociación`, "error");
+            }
+        }
+    }).responseJSON;
+}
+
+var datatableDestroy = (tableName) => {
+    Jquery(tableName).DataTable().destroy();
 }
 
 var datatableLang = (tableName) => {
-    if (jQuery(tableName).length) {
+    if (!jQuery(tableName).length) {
         jQuery(tableName).DataTable({
             "language": {
                 "lengthMenu": "Mostrar _MENU_ resultados por página",
@@ -164,10 +251,8 @@ var crearModal = (user,tipo,id) => {
             switch (tipo) {
                 case 1:
                     modal += `
-                        <button type="button" class="btn btn-success" onClick="aprobar(${id});">Aprobar</button>
-                    <a href="admin.php?page=abona2/Abonados.php&reject=$userId">
-                        <button type="button" class="btn btn-danger">Rechazar</button>
-                    </a>
+                        <button type="button" class="btn btn-success" onClick="aprobar(${id},1);">Aprobar</button>
+                        <button type="button" class="btn btn-danger" onClick="aprobar(${id},2);">Rechazar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>`;
                     break;
                 case 2:
@@ -206,4 +291,96 @@ var crearModal = (user,tipo,id) => {
 
     jQuery('#wpbody-content').append(modal);
     jQuery('#userModal').modal('show');
+}
+
+var modalObservacion = (id,type) => {
+    jQuery('#observacionModal').remove();
+    switch (type) {
+        case 1:
+            var modal = `
+            <div class="modal fade" id="observacionModal" tabindex="-1" role="dialog" aria-labelledby="observacionModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="observacionModalLabel">Mensaje de aprobación</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Mensaje predefinido:</label>
+                            <select class="form-control form-control-lg" id="selectMsg">
+                                <option>Usted fue aprobado porque cumple con todos los requerimientos para formar parte de la SCCC</option>
+                                <option>Usted fue aprobado ya que cumple con labores relacionadas a la ciencia de la computación</option>
+                                <option>Usted fue aprobado gracias a su vinculo con la ciencia de la computación</option>
+                            </select>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="clonarMsg()">Usar este mensaje</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Mensaje:</label>
+                            <textarea class="form-control" id="mensajeApp"></textarea>
+                        </div>
+                       
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cancelarPopup()">Cancelar</button>
+                        <button type="button" class="btn btn-success" data-dismiss="modal"  onclick="enviarAprobacion(${id})">Aprobar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+                `;
+            break;
+        case 2:
+            var modal = `
+            <div class="modal fade" id="observacionModal" tabindex="-1" role="dialog" aria-labelledby="observacionModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="observacionModalLabel">Mensaje de rechazo</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Mensaje predefinido:</label>
+                            <select class="form-control form-control-lg" id="selectMsg">
+                                <option>Usted fue rechazado porque no cumple con los requisitos minimos para formar parte de la SCCC</option>
+                                <option>Usted fue rechazado ya que no cumple con labores relacionadas a la ciencia de la computación</option>
+                                <option>Usted fue rechazado debido a que no existe un vinculo con la ciencia de la computación</option>
+                            </select>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="clonarMsg()">Usar este mensaje</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Mensaje:</label>
+                            <textarea class="form-control" id="mensajeApp"></textarea>
+                        </div>
+                       
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cancelarPopup()">Cancelar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"  onclick="enviarRechazo(${id})">Rechazar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+                `;
+            break;
+        default:
+            break;
+    }
+   
+    jQuery('#wpbody-content').append(modal);
+    jQuery('#observacionModal').modal('show');
+}
+
+var clonarMsg = () => {
+    var msg = jQuery('#selectMsg option:selected').val();
+    jQuery('#mensajeApp').val(msg);
 }
