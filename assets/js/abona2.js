@@ -96,6 +96,49 @@ var enviarRechazo = (id) => {
     }).responseJSON;
 }
 
+let guardarMembresia = (type) => {
+    switch (type) {
+        case 1:
+            membresia = 'Membresía individual';
+            var product = jQuery('#membresiaIndividual option:selected').val();
+            if(!product){
+                 swal("Algo salio mal!", `Seleccione un producto para asociar`, "error");
+                 return
+            }
+            break;
+        case 2:
+            membresia = 'Membresía institucional';
+            var product = jQuery('#membresiaInstitucional option:selected').val();
+            if(!product){
+                 swal("Algo salio mal!", `Seleccione un producto para asociar`, "error");
+                 return
+            }
+            break;
+        default:
+            break;
+    }
+    jQuery.ajax({
+        url: abona2_vars.ajaxurl,
+        type: 'post',
+        data: {
+            action: 'abona2_save_membership',
+            product_id: product,
+            type: type
+        },
+        beforeSend: function() {
+            jQuery('#loadingModal').show();
+        },
+        success: function (resultado) {
+            jQuery('#loadingModal').hide();
+            if (resultado.status === "success") {
+                swal("Buen trabajo!", `Asociaste este producto a la ${membresia}!`, "success");
+            } else if (resultado.status === "error"){
+                swal("Algo salio mal!", `No se pudo completar la asociación`, "error");
+            }
+        }
+    }).responseJSON;
+}
+
 var datatableDestroy = (tableName) => {
     Jquery(tableName).DataTable().destroy();
 }
