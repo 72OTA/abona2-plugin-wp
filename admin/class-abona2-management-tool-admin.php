@@ -448,12 +448,14 @@ class Abona2_Management_Tool_Admin {
 		$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
 		$result = $available_gateways[ 'transbank' ]->process_payment( $order->get_id() );
 		// Redirect to success/confirmation/payment page
-		var_dump(esc_url($order->get_checkout_payment_url()));
+		// var_dump(esc_url($order->get_checkout_payment_url()));
+
 		if ( $result['result'] == 'success' ) {
 
 			$result = apply_filters( 'woocommerce_payment_successful_result', $result, $order->get_id() );
 
-			wp_redirect( $result['redirect'] );
+			// wp_redirect( $result['redirect'] );
+			wp_redirect( esc_url($order->get_checkout_payment_url()));
 			exit;
 		}
 	}
