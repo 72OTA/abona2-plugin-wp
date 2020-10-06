@@ -219,8 +219,6 @@ class Abona2_Management_Tool_Activator {
 		ALTER TABLE $file
 		ADD KEY `file_user` (`userId`),
 		ADD KEY `file_token` (`tokenId`);
-		ALTER TALBE $membership
-		ADD KEY `product_membership` (`product_id`);
 		";
 
 		$alter_constraints = "ALTER TABLE $member
@@ -234,9 +232,6 @@ class Abona2_Management_Tool_Activator {
 		ALTER TABLE $file
 		ADD CONSTRAINT `file_token` FOREIGN KEY (`tokenId`) REFERENCES $validation (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
 		ADD CONSTRAINT `file_user` FOREIGN KEY (`userId`) REFERENCES $member (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-		COMMIT;
-		ALTER TABLE $membership
-		ADD CONSTRAINT `product_membership` FOREIGN KEY (`product_id`) REFERENCES $product_meta (`product_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 		COMMIT;
 		";
 

@@ -144,8 +144,19 @@ var datatableDestroy = (tableName) => {
 }
 
 var datatableLang = (tableName) => {
-    if (!jQuery(tableName).length) {
+    if (jQuery(tableName).length) {
         jQuery(tableName).DataTable({
+            "dom": 'Bfrtip',
+            "buttons": [ {
+                "extend": "excelHtml5",
+                "autoFilter": true,
+                "sheetName": "Usuarios exportados"
+            },
+            {
+                "extend": "copy",
+                "text": "Copiar"
+            },
+            "pdf" ],
             "language": {
                 "lengthMenu": "Mostrar _MENU_ resultados por página",
                 "zeroRecords": "No se encontro nada - lo sentimos",
@@ -162,7 +173,7 @@ var datatableLang = (tableName) => {
                     "next": "Siguiente",
                     "previous": "Anterior"
                 }
-            }
+            },
         });
     }
 }

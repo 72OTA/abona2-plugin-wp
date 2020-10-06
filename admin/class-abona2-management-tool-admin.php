@@ -29,7 +29,7 @@ class Abona2_Management_Tool_Admin {
 		),
 	); 
 
-	public $valid_pages = array("abona2-management-tool","members-management","pending-approve-management","pending-pay-management","pre-members-management","rejected-members-management");
+	public $valid_pages = array("abona2-management-tool","members-management","pending-approve-management","pending-pay-management","pre-members-management","rejected-members-management","abona2-settings","all-users-management");
 
 	/**
 	 * The ID of this plugin.
@@ -87,6 +87,7 @@ class Abona2_Management_Tool_Admin {
 		if(in_array($page,$this->valid_pages)){
 			wp_enqueue_style( "bootstrap", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/bootstrap.min.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "datatables", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/jquery.dataTables.min.css', array(), $this->version, 'all' );
+			wp_enqueue_style( "buttons-datatable", plugin_dir_url( __FILE__ ) . 'css/buttons-datatable.min.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "sweetalert", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/sweetalert.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "fontawesome", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/fontawesome.all.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "alertify", plugin_dir_url( __FILE__ ) . 'css/alertify.min.css', array(), $this->version, 'all' );
@@ -122,7 +123,17 @@ class Abona2_Management_Tool_Admin {
 			wp_enqueue_script( "abona2-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/abona2.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "bootstrap-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/bootstrap.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "popper-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/popper.min.js', array( 'jquery' ), $this->version, false );
+
+			wp_enqueue_script( "jzip-js", plugin_dir_url( __FILE__ ) . 'js/jzip.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "pdfmake-js", plugin_dir_url( __FILE__ ) . 'js/pdfmake.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "vfs-fonts-js", plugin_dir_url( __FILE__ ) . 'js/vfs_fonts.min.js', array( 'jquery' ), $this->version, false );
+
 			wp_enqueue_script( "datatables-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/jquery.dataTables.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-dt-js", plugin_dir_url( __FILE__ ) . 'js/dataTables.buttons.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-flash-js", plugin_dir_url( __FILE__ ) . 'js/buttons.flash.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-html5-js", plugin_dir_url( __FILE__ ) . 'js/buttons.html5.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-print-js", plugin_dir_url( __FILE__ ) . 'js/buttons.print.min.js', array( 'jquery' ), $this->version, false );
+
 			wp_enqueue_script( "sweetalert-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/sweetalert.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "validate-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/jquery.validate.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/abona2-management-tool-admin.js', array( 'datatables-js' ), $this->version, false );
@@ -201,6 +212,22 @@ class Abona2_Management_Tool_Admin {
 			'manage_options',
 			'rejected-members-management',
 			array($this, "abona2_rejected_member_management")
+		);
+		add_submenu_page(
+			"abona2-management-tool", 
+			'Todos los usuarios',
+			'Todos',
+			'manage_options',
+			'all-users-management',
+			array($this, "abona2_all_users_management")
+		);
+		add_submenu_page(
+			"abona2-management-tool", 
+			'Opciones avanzadas',
+			'Opciones',
+			'manage_options',
+			'abona2-settings',
+			array($this, "abona2_advanced_settings")
 		);
 	}
 	
@@ -283,6 +310,28 @@ class Abona2_Management_Tool_Admin {
 		echo $template;
 	}
 
+	public function abona2_all_users_management() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-all-users.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
+	public function abona2_advanced_settings() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-advanced-settings.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
 	public function get_user_data() {
 		//handler ajax request
 		global $wpdb;
@@ -316,7 +365,7 @@ class Abona2_Management_Tool_Admin {
 		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
 		$id_user = $_POST['id_user'];
 		$mensaje = $_POST['mensaje'];
-		// $wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
+		$wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
 		
 		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones,email,telefono,direccion,institucion FROM $member_table WHERE id = %s",$id_user);
 		$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
@@ -506,17 +555,23 @@ class Abona2_Management_Tool_Admin {
 	public function alert_membership( $order_id ) {
 		global $wpdb;
 		$order = wc_get_order( $order_id );
-		$user = $order->get_user();
+		$correo = $order->get_billing_email();
+		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+
+		$prepare_query = $wpdb->prepare("SELECT id FROM $member_table WHERE email = %s",$correo);
+		$id_user = $wpdb->get_var($prepare_query);
+
 		try{
-			$wpdb->query(
-				$wpdb->prepare("INSERT INTO abona2_prueba ( datos) 
-				VALUES ( %s)", $user)
-			);
+			$wpdb->query("UPDATE $member_table SET estado_id = 5 WHERE id='$id_user'");
 		} catch(Exception $e){ 
+			if ( ! $order->has_status( 'failed' ) ) {
+				$url = get_site_url().'/pre-register';
+				wp_safe_redirect( $url );
+				exit;
+			}
 			wp_send_json_error( $e, 400 );
 			wp_die();
 		}
-        ?> <script>alert("USUARIO ADQUIRIO MEMBRESIA!");</script> <?php
     }
 
 }
