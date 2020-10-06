@@ -503,7 +503,19 @@ class Abona2_Management_Tool_Admin {
 		wp_die();
 	}
 
-	public function alert_membership() {
+	public function alert_membership( $order_id ) {
+		global $wpdb;
+		$order = wc_get_order( $order_id );
+		$user = $order->get_user();
+		try{
+			$wpdb->query(
+				$wpdb->prepare("INSERT INTO abona2_prueba ( datos) 
+				VALUES ( %s)", $user)
+			);
+		} catch(Exception $e){ 
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
         ?> <script>alert("USUARIO ADQUIRIO MEMBRESIA!");</script> <?php
     }
 
