@@ -43,6 +43,9 @@ class Abona2_Management_Tool_Activator {
 		(new self)->tbl_users();
 		(new self)->tbl_estatus();
 		(new self)->tbl_membership();
+		(new self)->tbl_url_after_payment();
+		(new self)->tbl_create();
+		(new self)->tbl_email_configuration();
 		(new self)->rlt_tables();
 		(new self)->page_pre_reg();
 		(new self)->page_complete_reg();
@@ -68,13 +71,10 @@ class Abona2_Management_Tool_Activator {
 			`vinculo_id` int(11) NOT NULL,
 			`observaciones` longtext COLLATE utf8_spanish_ci,
 			`terms` varchar(5) COLLATE utf8_spanish_ci NOT NULL,
-			`miembro` tinyint(1) NOT NULL DEFAULT '0',
-			`pendiente` tinyint(1) NOT NULL DEFAULT '0',
-			`preRegistro` int(11) NOT NULL DEFAULT '1',
-			`completarRegistro` int(11) NOT NULL DEFAULT '0',
 			`createDate` datetime DEFAULT NULL,
 			`modificationDate` datetime DEFAULT CURRENT_TIMESTAMP,
 			`estado_id` int(11) NOT NULL DEFAULT '1',
+			`create_id` int(11) NOT NULL DEFAULT '1',
 			PRIMARY KEY(id),
 			UNIQUE(rut)
 		  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla para el pre registro de miembros';";
@@ -98,6 +98,26 @@ class Abona2_Management_Tool_Activator {
 		(1, 'Investigación científica'),
 		(2, 'Enseñanza'),
 		(3, 'Ejercicio profesional');";
+
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			dbDelta($create);
+			dbDelta($insert);
+		}
+	}
+
+	public function tbl_create() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'abona2_'. 'create_type';
+		$create = "CREATE TABLE $table_name (
+			`create_id` int(11) NOT NULL AUTO_INCREMENT,
+			`nombre` varchar(40) NOT NULL,
+			PRIMARY KEY(create_id)
+		  ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Tabla tipo para verificar tipos de vinculo';";
+
+		$insert = "INSERT INTO $table_name (`create_id`, `nombre`) VALUES
+		(1, 'Flujo normal'),
+		(2, 'Tradicional'),
+		(3, 'Honorifico');";
 
 		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
 			dbDelta($create);
@@ -199,6 +219,37 @@ class Abona2_Management_Tool_Activator {
 		}
 	}
 
+	public function tbl_url_after_payment() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'abona2_'. 'url_after_payment';
+		$create = "CREATE TABLE $table_name (
+			`id` int(11) NOT NULL AUTO_INCREMENT,
+			`description` varchar(250) NOT NULL,
+			`page_id` bigint(20) NOT NULL,
+			`modificationDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY(id)
+			) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			dbDelta($create);
+		}
+	}
+
+	public function tbl_email_configuration() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'abona2_'. 'email_configuration';
+		$create = "CREATE TABLE $table_name (
+			`id` int(11) NOT NULL AUTO_INCREMENT,
+			`email` varchar(250) NOT NULL,
+			`nombre` varchar(250) NOT NULL,
+			`status` bit(1) NOT NULL DEFAULT b'0',
+			`modificationDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY(id)
+			) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			dbDelta($create);
+		}
+	}
+
 	public function rlt_tables() {
 		global $wpdb;
 		$member = $wpdb->prefix . 'abona2_'. 'pre_register_member';
@@ -207,26 +258,25 @@ class Abona2_Management_Tool_Activator {
 		$validation = $wpdb->prefix . 'abona2_'. 'validation_email';
 		$estado = $wpdb->prefix . 'abona2_'. 'estado_type';
 		$file = $wpdb->prefix . 'abona2_'. 'file_user';
-		$membership = $wpdb->prefix . 'abona2_'. 'membership_type';
-		$product_meta = $wpdb->prefix .'wc_product_meta_lookup';
+		$insert = $wpdb->prefix . 'abona2_'. 'create_type';
 
 		$alter_keys = "ALTER TABLE $member
 		ADD KEY `vinculo` (`vinculo_id`),
 		ADD KEY `grado` (`grade_id`),
-		ADD KEY `estado` (`estado_id`);
+		ADD KEY `estado` (`estado_id`),
+		ADD KEY `create` (`create_id`);
 		ALTER TABLE $validation
 		ADD KEY `validation_user` (`userId`);
 		ALTER TABLE $file
 		ADD KEY `file_user` (`userId`),
 		ADD KEY `file_token` (`tokenId`);
-		ALTER TALBE $membership
-		ADD KEY `product_membership` (`product_id`);
 		";
 
 		$alter_constraints = "ALTER TABLE $member
 		ADD CONSTRAINT `grade_user` FOREIGN KEY (`grade_id`) REFERENCES $grade (`grade_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		ADD CONSTRAINT `vinculo_user` FOREIGN KEY (`vinculo_id`) REFERENCES $vinculo (`vinculo_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-		ADD CONSTRAINT `estado_user` FOREIGN KEY (`estado_id`) REFERENCES $estado (`estado_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		ADD CONSTRAINT `estado_user` FOREIGN KEY (`estado_id`) REFERENCES $estado (`estado_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+		ADD CONSTRAINT `create_user` FOREIGN KEY (`create_id`) REFERENCES $insert (`create_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 		COMMIT;
 		ALTER TABLE $validation
 		ADD CONSTRAINT `validation_user` FOREIGN KEY (`userId`) REFERENCES $member (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
@@ -234,9 +284,6 @@ class Abona2_Management_Tool_Activator {
 		ALTER TABLE $file
 		ADD CONSTRAINT `file_token` FOREIGN KEY (`tokenId`) REFERENCES $validation (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
 		ADD CONSTRAINT `file_user` FOREIGN KEY (`userId`) REFERENCES $member (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-		COMMIT;
-		ALTER TABLE $membership
-		ADD CONSTRAINT `product_membership` FOREIGN KEY (`product_id`) REFERENCES $product_meta (`product_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 		COMMIT;
 		";
 
@@ -300,10 +347,6 @@ class Abona2_Management_Tool_Activator {
 		$update_time_token = "CREATE TRIGGER `update_time_token` BEFORE UPDATE ON $validation 
 		FOR EACH ROW set new.modificationDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR;";
 
-		$update_time = "CREATE TRIGGER `update_time` BEFORE UPDATE ON $member 
-		FOR EACH ROW set new.modificationDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR, 
-		new.completarRegistro = 1;";
-
 		$validation_time_lapse ="CREATE TRIGGER `validation_timelapse` BEFORE INSERT ON $validation 
 		FOR EACH ROW set new.tiempo = CURRENT_TIMESTAMP + INTERVAL + 8 HOUR,
 		new.modificationDate = CURRENT_TIMESTAMP + INTERVAL 3 HOUR;";
@@ -334,7 +377,6 @@ class Abona2_Management_Tool_Activator {
 		$wpdb->query($get_pre_user);
 		//Disipadores
 		dbDelta($update_time_token);
-		dbDelta($update_time);
 		$wpdb->query($validation_time_lapse);
 		$wpdb->query($update_time_user);
 		// dbDelta($validation_time_lapse);

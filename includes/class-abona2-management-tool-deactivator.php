@@ -40,7 +40,9 @@ class Abona2_Management_Tool_Deactivator {
 		(new self)->drop_something('abona2_validation_email','TABLE');
 		(new self)->drop_something('abona2_estado_type','TABLE');
 		(new self)->drop_something('abona2_membership_type','TABLE');
-
+		(new self)->drop_something('abona2_create_type','TABLE');
+		(new self)->drop_something('url_after_payment','TABLE');
+		(new self)->drop_something('email_configuration','TABLE');
 		(new self)->drop_something('get_user_for_approval','PROCEDURE');
 		(new self)->drop_something('get_pre_user','PROCEDURE');
 		(new self)->drop_something('change_token_status','PROCEDURE');
@@ -48,7 +50,6 @@ class Abona2_Management_Tool_Deactivator {
 		(new self)->drop_something('change_token_status_recurring','EVENT');
 		(new self)->drop_something('change_token_status_recurring','EVENT');
 		
-		(new self)->drop_something('update_time','TRIGGER');
 		(new self)->drop_something('update_time_token','TRIGGER');
 		(new self)->drop_something('update_time_user','TRIGGER');
 		(new self)->drop_something('validation_timelapse','TRIGGER');

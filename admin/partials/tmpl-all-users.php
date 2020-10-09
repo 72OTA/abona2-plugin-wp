@@ -1,6 +1,6 @@
 
 <div class="wrap">
-  <h3>Usuarios pendientes de pago <i class="fas fa-money-bill-alt"></i></h3>
+  <h3>Todos <i class="fas fa-user-friends"></i></h3>
   <br>
   <table class="table" id="datatable-abona2">
     <thead class="thead-dark">
@@ -11,14 +11,15 @@
         <th scope="col">Titulo</th>
         <th scope="col">Telefono</th>
         <th scope="col">Correo</th>
-        <th scope="col">Acciones</th>
+        <th scope="col">Institución</th>
+        <th scope="col">Estado</th>
       </tr>
     </thead>
     <tbody>
     <?php
       global $wpdb;
       $table_name = $wpdb->prefix . 'abona2_'. 'pre_register_member';
-      $result = $wpdb->get_results("SELECT * FROM $table_name WHERE estado_id = 4");
+      $result = $wpdb->get_results("SELECT * FROM $table_name");
       foreach ($result as $print) {
         echo "
           <tr>
@@ -28,8 +29,29 @@
             <td>$print->titulo</td>
             <td><a href='tel:".$print->telefono."'>$print->telefono</a></td>
             <td><a href='mailto:".$print->email."'>$print->email</a></td>
-            <td width='25%'><button class='btn btn-info' onclick='getUserData($print->id,2)'>Información</button></td>
-          </tr>
+            <td>$print->institucion</td>
+            ";
+            switch ($print->estado_id) {
+              case 1:
+                echo "<td>Pre registrado</td>";
+                break;
+              case 2:
+                echo "<td>Pendiente</td>";
+                break;
+              case 3:
+                echo "<td>Rechazado</td>";
+                break;
+              case 4:
+                echo "<td>Pendiente de pago</td>";
+                break;
+              case 5:
+                echo "<td>Miembro</td>";
+                break;
+              default:
+                # code...
+                break;
+            }
+          echo "</tr>
         ";
       }
     ?>
@@ -42,7 +64,8 @@
         <th scope="col">Titulo</th>
         <th scope="col">Telefono</th>
         <th scope="col">Correo</th>
-        <th scope="col">Acciones</th>
+        <th scope="col">Institución</th>
+        <th scope="col">Estado</th>
       </tr>
     </tfoot>
   </table>
