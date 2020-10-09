@@ -1,48 +1,48 @@
 
 <div class="wrap">
-  <h3>Usuarios pendientes de pago <i class="fas fa-money-bill-alt"></i></h3>
+  <h3>Usuarios Individuales Historico <i class="fas fa-user-friends"></i></h3>
   <br>
   <table class="table" id="datatable-abona2">
     <thead class="thead-dark">
       <tr>
         <th scope="col">ID</th>
-        <th scope="col">Nombre</th>
         <th scope="col">RUT</th>
-        <th scope="col">Titulo</th>
-        <th scope="col">Telefono</th>
+        <th scope="col">Nombre</th>
         <th scope="col">Correo</th>
-        <th scope="col">Acciones</th>
+        <th scope="col">Institución</th>
+        <th scope="col">Teléfono</th>
+        <th scope="col">Estado de membresía</th>
       </tr>
     </thead>
     <tbody>
     <?php
       global $wpdb;
-      $table_name = $wpdb->prefix . 'abona2_'. 'pre_register_member';
-      $result = $wpdb->get_results("SELECT * FROM $table_name WHERE estado_id = 4");
+      $table_historic = 'abona2_scc_historico';
+      $result = $wpdb->get_results("SELECT * FROM $table_historic WHERE tipo_socio = 'Individual'");
+    
       foreach ($result as $print) {
         echo "
           <tr>
             <td>$print->id</td>
-            <td>$print->nombre  $print->apellido</td>
             <td>$print->rut</td>
-            <td>$print->titulo</td>
-            <td><a href='tel:".$print->telefono."'>$print->telefono</a></td>
+            <td>$print->nombre</td>
             <td><a href='mailto:".$print->email."'>$print->email</a></td>
-            <td width='25%'><button class='btn btn-info' onclick='getUserData($print->id,2)'>Información</button></td>
-          </tr>
-        ";
+            <td>$print->institucion</td>
+            <td><a href='tel:".$print->telefono."'>$print->telefono</a></td>
+            <td>$print->estado_membresia</td>
+            ";
       }
     ?>
     </tbody>
     <tfoot class="thead-dark">
       <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Nombre</th>
+      <th scope="col">ID</th>
         <th scope="col">RUT</th>
-        <th scope="col">Titulo</th>
-        <th scope="col">Telefono</th>
+        <th scope="col">Nombre</th>
         <th scope="col">Correo</th>
-        <th scope="col">Acciones</th>
+        <th scope="col">Institución</th>
+        <th scope="col">Teléfono</th>
+        <th scope="col">Estado de membresía</th>
       </tr>
     </tfoot>
   </table>

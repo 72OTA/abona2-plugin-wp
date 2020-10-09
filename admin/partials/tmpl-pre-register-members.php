@@ -12,8 +12,6 @@
         <th scope="col">Titulo</th>
         <th scope="col">Telefono</th>
         <th scope="col">Correo</th>
-        <th scope="col">Miembro</th>
-        <th scope="col">Pendiente</th>
         <th scope="col">Acciones</th>
       </tr>
     </thead>
@@ -31,8 +29,6 @@
             <td>$print->titulo</td>
             <td><a href='tel:".$print->telefono."'>$print->telefono</a></td>
             <td><a href='mailto:".$print->email."'>$print->email</a></td>
-            <td>$print->miembro</td>
-            <td>$print->pendiente</td>
             <td width='25%'><button class='btn btn-info' onclick='getUserData($print->id,3)'>Información</button></td>
           </tr>
         ";
@@ -47,13 +43,12 @@
         <th scope="col">Titulo</th>
         <th scope="col">Telefono</th>
         <th scope="col">Correo</th>
-        <th scope="col">Miembro</th>
-        <th scope="col">Pendiente</th>
         <th scope="col">Acciones</th>
       </tr>
     </tfoot>
   </table>
   <br>
+  <a href="?page=abona2-management-tool" class="btn btn-light btn-sm">Volver al dashboard</a>
   <br>
   <div class="modal" id="loadingModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered d-flex justify-content-center" role="document">

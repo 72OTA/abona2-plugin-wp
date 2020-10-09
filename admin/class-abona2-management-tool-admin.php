@@ -29,7 +29,7 @@ class Abona2_Management_Tool_Admin {
 		),
 	); 
 
-	public $valid_pages = array("abona2-management-tool","members-management","pending-approve-management","pending-pay-management","pre-members-management","rejected-members-management");
+	public $valid_pages = array("abona2-insert-traditional","abona2-insert-honorific","all-users-historico","abona2-management-tool","abona2-management-institutional","members-management","pending-approve-management","pending-pay-management","pre-members-management","rejected-members-management","abona2-settings","all-users-management");
 
 	/**
 	 * The ID of this plugin.
@@ -87,6 +87,7 @@ class Abona2_Management_Tool_Admin {
 		if(in_array($page,$this->valid_pages)){
 			wp_enqueue_style( "bootstrap", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/bootstrap.min.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "datatables", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/jquery.dataTables.min.css', array(), $this->version, 'all' );
+			wp_enqueue_style( "buttons-datatable", plugin_dir_url( __FILE__ ) . 'css/buttons-datatable.min.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "sweetalert", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/sweetalert.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "fontawesome", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/fontawesome.all.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "alertify", plugin_dir_url( __FILE__ ) . 'css/alertify.min.css', array(), $this->version, 'all' );
@@ -122,7 +123,17 @@ class Abona2_Management_Tool_Admin {
 			wp_enqueue_script( "abona2-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/abona2.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "bootstrap-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/bootstrap.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "popper-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/popper.min.js', array( 'jquery' ), $this->version, false );
+
+			wp_enqueue_script( "jzip-js", plugin_dir_url( __FILE__ ) . 'js/jzip.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "pdfmake-js", plugin_dir_url( __FILE__ ) . 'js/pdfmake.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "vfs-fonts-js", plugin_dir_url( __FILE__ ) . 'js/vfs_fonts.min.js', array( 'jquery' ), $this->version, false );
+
 			wp_enqueue_script( "datatables-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/jquery.dataTables.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-dt-js", plugin_dir_url( __FILE__ ) . 'js/dataTables.buttons.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-flash-js", plugin_dir_url( __FILE__ ) . 'js/buttons.flash.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-html5-js", plugin_dir_url( __FILE__ ) . 'js/buttons.html5.min.js', array( 'jquery' ), $this->version, false );
+			wp_enqueue_script( "buttons-print-js", plugin_dir_url( __FILE__ ) . 'js/buttons.print.min.js', array( 'jquery' ), $this->version, false );
+
 			wp_enqueue_script( "sweetalert-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/sweetalert.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( "validate-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/jquery.validate.min.js', array( 'jquery' ), $this->version, false );
 			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/abona2-management-tool-admin.js', array( 'datatables-js' ), $this->version, false );
@@ -151,15 +162,22 @@ class Abona2_Management_Tool_Admin {
 
 		add_submenu_page(
 			"abona2-management-tool", 
-			'Dashboard SCCC',
-			'Dashboard',
+			'Dashboard SCCC individual',
+			'Dashboard individiual',
 			'manage_options',
 			'abona2-management-tool',
 			array($this, "abona2_management_plugin")
 		);
-
 		add_submenu_page(
 			"abona2-management-tool", 
+			'Dashboard SCCC institucional',
+			'Dashboard institucional',
+			'manage_options',
+			'abona2-management-institutional',
+			array($this, "abona2_member_management_institutional")
+		);
+		add_submenu_page(
+			'options.php', 
 			'Miembros SCCC',
 			'Miembros',
 			'manage_options',
@@ -168,7 +186,7 @@ class Abona2_Management_Tool_Admin {
 		);
 
 		add_submenu_page(
-			"abona2-management-tool", 
+			'options.php', 
 			'Pendientes SCCC',
 			'Pendientes de pago',
 			'manage_options',
@@ -177,7 +195,7 @@ class Abona2_Management_Tool_Admin {
 		);
 
 		add_submenu_page(
-			"abona2-management-tool", 
+			'options.php', 
 			'Pendientes SCCC',
 			'Pendientes de aprobación',
 			'manage_options',
@@ -186,7 +204,7 @@ class Abona2_Management_Tool_Admin {
 		);
 
 		add_submenu_page(
-			"abona2-management-tool", 
+			'options.php', 
 			'Pre registrados SCCC',
 			'Pre registrados',
 			'manage_options',
@@ -195,12 +213,52 @@ class Abona2_Management_Tool_Admin {
 		);
 
 		add_submenu_page(
-			"abona2-management-tool", 
+			'options.php', 
 			'Rechazados SCCC',
 			'Rechazados',
 			'manage_options',
 			'rejected-members-management',
 			array($this, "abona2_rejected_member_management")
+		);
+		add_submenu_page(
+			'options.php', 
+			'Todos los usuarios',
+			'Todos',
+			'manage_options',
+			'all-users-management',
+			array($this, "abona2_all_users_management")
+		);
+		add_submenu_page(
+			'options.php', 
+			'Todos los usuarios historico',
+			'Todos historico',
+			'manage_options',
+			'all-users-historico',
+			array($this, "abona2_all_users_historico_individual")
+		);
+		add_submenu_page(
+			"abona2-management-tool", 
+			'Opciones avanzadas',
+			'Opciones avanzadas',
+			'manage_options',
+			'abona2-settings',
+			array($this, "abona2_advanced_settings")
+		);
+		add_submenu_page(
+			'options.php',
+			'Crear usuario tradicional',
+			'Crear usuario tradicional',
+			'manage_options',
+			'abona2-insert-traditional',
+			array($this, "abona2_insert_traditional_user")
+		);
+		add_submenu_page(
+			'options.php',
+			'Crear usuario honorifico',
+			'Crear usuario honorifico',
+			'manage_options',
+			'abona2-insert-honorific',
+			array($this, "abona2_insert_honorific_user")
 		);
 	}
 	
@@ -219,7 +277,18 @@ class Abona2_Management_Tool_Admin {
 		// $users_all = $wpdb->get_results("SELECT * FROM sccc_users", ARRAY_A);
 		ob_start();//start buffer
 		
-		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-dashboard.php");
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-dashboard-individual.php");
+		
+		$template = ob_get_contents();//leer contenido
+		
+		ob_end_clean();//cerar y limpiar buffer
+		echo $template;
+	}
+
+	public function abona2_member_management_institutional() {
+		ob_start();//start buffer
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-dashboard-institucional.php");
 		
 		$template = ob_get_contents();//leer contenido
 		
@@ -283,6 +352,61 @@ class Abona2_Management_Tool_Admin {
 		echo $template;
 	}
 
+	public function abona2_all_users_management() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-all-users.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
+	public function abona2_advanced_settings() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-advanced-settings.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
+	public function abona2_all_users_historico_individual() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-all-users-historic.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
+	public function abona2_insert_traditional_user() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-insert-traditional.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
+	public function abona2_insert_honorific_user() {
+		ob_start();
+		
+		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-insert-honorific.php");
+		
+		$template = ob_get_contents();
+		
+		ob_end_clean();
+		echo $template;
+	}
+
 	public function get_user_data() {
 		//handler ajax request
 		global $wpdb;
@@ -316,7 +440,7 @@ class Abona2_Management_Tool_Admin {
 		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
 		$id_user = $_POST['id_user'];
 		$mensaje = $_POST['mensaje'];
-		// $wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
+		$wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
 		
 		$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido,observaciones,email,telefono,direccion,institucion FROM $member_table WHERE id = %s",$id_user);
 		$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
@@ -494,7 +618,7 @@ class Abona2_Management_Tool_Admin {
 			wp_die();
 		}
 		$result =  array(
-			'mensaje'=>'El usuario fue rechazado exitosamente',
+			'mensaje'=>'Producto configurado exitosamente',
 			'code' => '200',
 			'status'=> 'success'
 		);
@@ -503,8 +627,246 @@ class Abona2_Management_Tool_Admin {
 		wp_die();
 	}
 
-	public function alert_membership() {
-        ?> <script>alert("USUARIO ADQUIRIO MEMBRESIA!");</script> <?php
-    }
+	public function endpoint_configuration() {
+		global $wpdb;
+		$endpoint = $wpdb->prefix . 'abona2_'. 'url_after_payment';
+		$page_id = $_POST['page_id'];
+		$type = $_POST['type'];
+
+		if($type == 1){
+			$descripcion = 'EXITOSO';
+		}else if($type == 2){
+			$descripcion = 'FALLIDO';
+		}
+		
+		try{
+			$wpdb->query(
+				$wpdb->prepare("INSERT INTO $endpoint ( description, page_id) 
+				VALUES ( %s, %d)", $descripcion, $page_id)
+			);
+		} catch(Exception $e){ 
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
+		$result =  array(
+			'mensaje'=>'Endpoint configurado exitosamente',
+			'code' => '200',
+			'status'=> 'success'
+		);
+		
+		wp_send_json($result,200);
+		wp_die();
+	}
+
+	public function email_configuration() {
+		global $wpdb;
+		$email_conf = $wpdb->prefix . 'abona2_'. 'email_configuration';
+		$email = $_POST['mail'];
+		$nombre = $_POST['firstname'];
+
+		
+		try{
+			$wpdb->query(
+				$wpdb->prepare("INSERT INTO $email_conf (email,nombre) 
+				VALUES ( %s, %s)", $email,$nombre)
+			);
+		} catch(Exception $e){ 
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
+		$result =  array(
+			'mensaje'=>'Email configurado exitosamente',
+			'code' => '200',
+			'status'=> 'success'
+		);
+		
+		wp_send_json($result,200);
+		wp_die();
+	}
+
+	public function alert_membership( $order_id ) {
+		global $wpdb;
+		$order = wc_get_order( $order_id );
+		$correo = $order->get_billing_email();
+		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+		$endpoint = $wpdb->prefix . 'abona2_'. 'url_after_payment';
+
+		$prepare_query = $wpdb->prepare("SELECT id FROM $member_table WHERE email = %s",$correo);
+		$id_user = $wpdb->get_var($prepare_query);
+
+		try{
+			$wpdb->query("UPDATE $member_table SET estado_id = 5 WHERE id='$id_user'");
+		} catch(Exception $e){ 
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
+
+		$exitoso = $wpdb->get_var( 
+			$wpdb->prepare("SELECT page_id FROM $endpoint WHERE description = %s ORDER BY id DESC",'EXITOSO') 
+		);
+		$fallido = $wpdb->get_var( 
+			$wpdb->prepare("SELECT page_id FROM $endpoint WHERE description = %s ORDER BY id DESC",'FALLIDO') 
+		);
+
+		$success = get_post($exitoso);
+		$fail = get_post($fallido);
+
+		$successUrl = $success->post_name;
+		$failUrl = $fail->post_name;
+
+
+		if ( ! $order->has_status( 'failed' ) ) {
+			$url = get_site_url().'/'.$successUrl;
+			wp_safe_redirect( $url );
+			exit;
+		}else if($order->has_status( 'failed' )){
+			$url = get_site_url().'/'.$failUrl;
+			wp_safe_redirect( $url );
+			exit;
+		}
+		
+	}
+	
+	public function create_user() {
+		global $wpdb;
+		
+		$firstname = $_POST['firstname'];
+		$lastname = $_POST['lastname'];
+		$rut = $_POST['rut'];
+		$correo = $_POST['mail'];
+		$comment = $_POST['comment'];
+		$terms = 'on';
+		$vinc = $_POST['vinculo'];
+		$address = $_POST['address'];
+		$phone = $_POST['phone'];
+		$title = $_POST['title'];
+		$institution = $_POST['institution'];
+		$secondMail = $_POST['secondMail'];
+		$workPosition = $_POST['workPosition'];
+		$grade = $_POST['grade'];
+		$tipo = $_POST['tipo'];
+		if($tipo == '2'){
+			$tipo = 2;
+		}else{
+			$tipo = 3;
+		}
+
+		$this->verificarCorreo($correo); 
+		$this->verificarRut($rut);
+
+		try {
+			// Indefinido | Multiples archivos | $_FILES Ataque de corrupción
+			// si el request se cae en cualquiera de estos, el request es invalido.
+			if (!isset($_FILES['inputFile']['error']) ||
+				is_array($_FILES['inputFile']['error'])) 
+				{
+				wp_send_json_error( 'Archivo con parametros invalidos.', 400 );
+				wp_die();
+			}
+			 // Check $_FILES['inputFile']['error'] value.
+			switch ($_FILES['inputFile']['error']) {
+			case UPLOAD_ERR_OK:
+				break;
+			case UPLOAD_ERR_NO_FILE:
+				wp_send_json_error( 'No se envio el archivo.', 400 );
+				wp_die();
+			case UPLOAD_ERR_INI_SIZE:
+			case UPLOAD_ERR_FORM_SIZE:
+				wp_send_json_error( 'El archivo excede el tamaño maximo permitido.', 400 );
+				wp_die();
+			default:
+				wp_send_json_error( 'Error desconocido con el archivo.', 400 );
+				wp_die();
+			}
+	
+			// NO CONFIAR EN VALORES $_FILES['inputFile']['mime']!!
+			// Checkear Tipo MIME uno mimso .
+			$finfo = new finfo(FILEINFO_MIME_TYPE);
+			if (false === $ext = array_search(
+			$finfo->file($_FILES['inputFile']['tmp_name']),
+			array(
+				'pdf' => 'application/pdf'
+			),true)) 
+			{
+				wp_send_json_error( 'Formato del archivo invalido.', 400 );
+				wp_die();
+			}
+			
+		} catch (RuntimeException $e) {
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
+
+		try{ 
+			$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+			$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
+			$file_table = $wpdb->prefix. 'abona2_'."file_user";
+
+			$wpdb->query(
+				$wpdb->prepare("INSERT INTO $member_table ( nombre, apellido, rut, email,observaciones, vinculo_id, terms, direccion, telefono, titulo, institucion, secondMail, cargo, grade_id, estado_id, create_id) 
+				VALUES ( %s, %s, %s, %s,%s, %d, %s, %s, %s, %s, %s, %s, %s, %d, %d, %d)",$firstname,$lastname,$rut,$correo,$comment,$vinc,$terms,$address,$phone,$title,$institution,$secondMail,$workPosition,$grade,5,$tipo)
+			);
+			
+			$user_id = $wpdb->insert_id;
+
+			$wpdb->query(
+				$wpdb->prepare("INSERT INTO $validation_table (userId, token, estado) 
+				VALUES ( %d, UUID(), b'1')",$user_id)
+			);
+		
+			$token_id = $wpdb->insert_id;
+			$uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'member-attachments/';
+			$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']).$user_id,$ext);
+
+			if (!move_uploaded_file(
+				$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
+			{
+				wp_send_json_error('Fallo al intentar mover el archivo subido', 400 );
+				wp_die();
+			}
+
+			$prepared_file_qry = $wpdb->prepare("INSERT INTO $file_table (userId,tokenId, filenameEncrypt) VALUES (%d,%d,%s);",$user_id,$token_id,$filenameDestination);
+			$wpdb->query($prepared_file_qry);
+
+			
+		} catch(RuntimeException $e){ 
+			wp_send_json_error( $e, 400 );
+			wp_die();
+		}
+
+		$respuesta =  array(
+			'mensaje'=>'El usuario fue creado exitosamente',
+			'code' => '200',
+		);
+
+		wp_send_json( $respuesta, 200 );
+		wp_die();
+	}
+
+	function verificarRut($rut){
+		global $wpdb;
+		$member_table = $wpdb->prefix . 'abona2_'. "pre_register_member";
+		$prepare_query = $wpdb->prepare("SELECT COUNT(*) FROM $member_table WHERE rut = %s",$rut);
+		$getRut = $wpdb->get_var($prepare_query);
+
+		if( $getRut > 0 ){
+			$error = "El rut que intenta utilizar esta asociado a un usuario";
+			wp_send_json_error( $error, 400 );
+			wp_die();
+		}
+	}
+
+	function verificarCorreo($correo){
+		global $wpdb;
+		$member_table = $wpdb->prefix . 'abona2_'. "pre_register_member";
+		$prepare_query = $wpdb->prepare("SELECT COUNT(*) FROM $member_table WHERE email = %s",$correo);
+		$getMail = $wpdb->get_var($prepare_query);
+
+		if( $getMail > 0 ){
+			$error = "El correo que intenta utilizar esta asociado a un usuario";
+			wp_send_json_error( $error, 400 );
+			wp_die();
+		}
+	}
 
 }
