@@ -164,7 +164,10 @@ class Abona2_Management_Tool {
 		$this->loader->add_action("wp_ajax_abona2_approbe_user", $plugin_admin, 'approbe_user');
 		$this->loader->add_action("wp_ajax_abona2_reject_user", $plugin_admin, 'reject_user');
 		$this->loader->add_action("wp_ajax_abona2_save_membership", $plugin_admin, 'membership_configuration');
+		$this->loader->add_action("wp_ajax_abona2_save_url_afterpayment", $plugin_admin, 'endpoint_configuration');
 		$this->loader->add_action("wp_ajax_abona2_pre_reg_users", $plugin_admin, 'get_pre_register_users');
+		$this->loader->add_action("wp_ajax_abona2_create_user", $plugin_admin, 'create_user');
+		$this->loader->add_action("wp_ajax_abona2_create_email", $plugin_admin, 'email_configuration');
 		$this->loader->add_action( 'woocommerce_payment_complete',  $plugin_admin,'alert_membership',10, 1);
 	}
 

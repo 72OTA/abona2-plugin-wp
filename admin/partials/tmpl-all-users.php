@@ -1,6 +1,6 @@
 
 <div class="wrap">
-  <h3>Miembros actuales <i class="fas fa-user-friends"></i></h3>
+  <h3>Todos <i class="fas fa-user-friends"></i></h3>
   <br>
   <table class="table" id="datatable-abona2">
     <thead class="thead-dark">
@@ -65,11 +65,12 @@
         <th scope="col">Telefono</th>
         <th scope="col">Correo</th>
         <th scope="col">Institución</th>
-        <th scope="col">Pendiente</th>
+        <th scope="col">Estado</th>
       </tr>
     </tfoot>
   </table>
   <br>
+  <a href="?page=abona2-management-tool" class="btn btn-light btn-sm">Volver al dashboard</a>
   <br>
   <div class="modal" id="loadingModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered d-flex justify-content-center" role="document">
