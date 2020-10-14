@@ -78,14 +78,17 @@ function form_validation() {
         success: function (resp) {
             jQuery('#loadingModal').hide();
             alertify.alert('pre-registro completado', `Gracías ${resp.firstname + ' ' + resp.lastname}, 
-            tu pre registro se realizo de manera correcta, solo debieses esperar el correo de confirmación, ahora te redirigiremos a la página principal`
+            tu pre registro se realizo de manera correcta. Espera un correo electrónico de confirmación. Serás redirigido a la página principal.`
             ,function(){ 
                 window.location = "/"; }
             );
         },
         error: function (e) {
             jQuery('#loadingModal').hide();
-            alertar(e.responseJSON['data'],'Valor ya registrado');
+            alertar(`${e.responseJSON['data']}, serás redirigido a la página de socios para revisar tu membresía`,'Valor ya registrado'),
+            function(){
+                window.location = "/socios";
+            };
         }
     }).responseJSON;
 }

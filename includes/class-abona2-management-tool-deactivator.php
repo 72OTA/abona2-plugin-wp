@@ -41,8 +41,10 @@ class Abona2_Management_Tool_Deactivator {
 		(new self)->drop_something('abona2_estado_type','TABLE');
 		(new self)->drop_something('abona2_membership_type','TABLE');
 		(new self)->drop_something('abona2_create_type','TABLE');
-		(new self)->drop_something('url_after_payment','TABLE');
-		(new self)->drop_something('email_configuration','TABLE');
+		(new self)->drop_something('abona2_url_after_payment','TABLE');
+		(new self)->drop_something('abona2_email_configuration','TABLE');
+		// (new self)->drop_something('abona2_email_templates','TABLE');
+		
 		(new self)->drop_something('get_user_for_approval','PROCEDURE');
 		(new self)->drop_something('get_pre_user','PROCEDURE');
 		(new self)->drop_something('change_token_status','PROCEDURE');

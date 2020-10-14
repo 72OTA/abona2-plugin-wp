@@ -199,6 +199,7 @@ class Abona2_Management_Tool_Public {
 		$subject = $asunto;
 		$body = $template;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
+		$headers[] = 'From: Sociedad Chilena de Ciencia de la Computación <contacto@nube.site>';
 		
 			wp_mail( $to, $subject, $body, $headers );
 
@@ -286,7 +287,7 @@ class Abona2_Management_Tool_Public {
 			$user_id = $obj_validation['userId'];
 			$token_id = $obj_validation['id'];
 
-			$uploads_dir = trailingslashit( wp_upload_dir()['basedir'] ) . 'member-attachments/';
+			$uploads_dir = trailingslashit( wp_upload_dir()['baseurl'] ) . 'member-attachments/';
 			$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']).$user_id,$ext);
 			$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
 			
@@ -325,7 +326,7 @@ class Abona2_Management_Tool_Public {
 			wp_send_json_error( $e, 400 );
 			wp_die();
 		}
-	
+
 		//variables correo usuario
 		$variables = array();
 		$variables['nombre'] = $user_name;
@@ -366,12 +367,20 @@ class Abona2_Management_Tool_Public {
 					$templateAdmin = str_replace('{{ '.$key.' }}', $value, $templateAdmin);
 				}
 	
+			$email_table = $wpdb->prefix. 'abona2_'."email_configuration";
+
 			$to = 'contacto@nube.site';
 			$subject = 'Un nuevo usuario completo su perfil';
 			$body = $templateAdmin;
 			$headers = array('Content-Type: text/html; charset=UTF-8');
-			$headers[] = 'From: SCCC <contacto@nube.site>';
-			$headers[] = 'Cc: Felipe Andrade <f.andradevalenzuela@gmail.com>';
+			$headers[] = 'From: Sociedad Chilena de Ciencia de la Computación <contacto@nube.site>';
+			
+			$prepared_email_qry = $wpdb->prepare("SELECT email, nombre FROM $email_table WHERE status = %d",1);
+			$datos_email_config = $wpdb->get_results($prepared_email_qry,ARRAY_A);
+			foreach($datos_email_config as $element)
+			{
+			$headers[] = 'Cc: '.$element['nombre'].' <'.$element['email'].'>';
+			}
 
 			wp_mail( $to, $subject, $body, $headers );
 
@@ -442,6 +451,7 @@ class Abona2_Management_Tool_Public {
 		$subject = $asunto;
 		$body = $template;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
+		$headers[] = 'From: Sociedad Chilena de Ciencia de la Computación <contacto@nube.site>';
 		wp_mail( $to, $subject, $body, $headers );
 
 		$respuesta =  array(
@@ -511,7 +521,7 @@ class Abona2_Management_Tool_Public {
 		$subject = 'Registro Completo';
 		$body = $template;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
-		$headers[] = 'From: SCCC <contacto@nube.site>';
+		$headers[] = 'From: Sociedad Chilena de Ciencia de la Computación <contacto@nube.site>';
 		$headers[] = 'Cc: '.$user_name.' '. $user_lastname.' <'.$user_email.'>';
 			wp_mail( $to, $subject, $body, $headers );
 	}
