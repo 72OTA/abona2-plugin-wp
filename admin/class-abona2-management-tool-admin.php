@@ -364,6 +364,7 @@ class Abona2_Management_Tool_Admin {
 	}
 
 	public function abona2_advanced_settings() {
+		$this->email_config();
 		ob_start();
 		
 		include_once(ABONA2_MANAGEMENT_TOOL_PLUGIN_PATH."/admin/partials/tmpl-advanced-settings.php");
@@ -434,10 +435,33 @@ class Abona2_Management_Tool_Admin {
 		// }
 	}
 
+	public function email_config() {
+
+		global $wpdb;
+		$email_conf = $wpdb->prefix . 'abona2_'. 'email_configuration';
+
+		if (isset($_GET['activar'])) {
+			$act_id = $_GET['activar'];
+			$wpdb->query("UPDATE $email_conf SET status = 1 WHERE id='$act_id'");
+			header("Refresh:0; url=admin.php?page=abona2-settings");
+		}
+		if (isset($_GET['desactivar'])) {
+			$deact_id = $_GET['desactivar'];
+			$wpdb->query("UPDATE $email_conf SET status = 0 WHERE id='$deact_id'");
+			header("Refresh:0; url=admin.php?page=abona2-settings");
+		}
+		if (isset($_GET['eliminar'])) {
+			$del_id = $_GET['eliminar'];
+			$wpdb->query("DELETE FROM $email_conf WHERE id='$del_id'");
+			header("Refresh:0; url=admin.php?page=abona2-settings");
+		  }
+	}
+
 
 	public function approbe_user() {
 		global $wpdb;
 		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+		$email_table = $wpdb->prefix. 'abona2_'."email_configuration";
 		$id_user = $_POST['id_user'];
 		$mensaje = $_POST['mensaje'];
 		$wpdb->query("UPDATE $member_table SET estado_id = 4 WHERE id='$id_user'");
@@ -476,12 +500,18 @@ class Abona2_Management_Tool_Admin {
 				$templateAdmin = str_replace('{{ '.$key.' }}', $value, $templateAdmin);
 			}
 
-		$to = 'contacto@nube.site';
+		$to = $user_email;
 		$subject = 'SU SOLICITUD FUE APROBADA';
 		$body = $templateAdmin;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
-		$headers[] = 'From: SCCC <contacto@nube.site>';
-		$headers[] = 'Cc: '.$user_name.' '.$user_lastname.' <'.$user_email.'>';
+		$headers[] = 'From: Sociedad Chilena de Ciencia de la Computación <contacto@nube.site>';
+
+		// $prepared_email_qry = $wpdb->prepare("SELECT email, nombre FROM $email_table WHERE status = %d",1);
+		// $datos_email_config = $wpdb->get_results($prepared_email_qry,ARRAY_A);
+		// foreach($datos_email_config as $element)
+		// {
+		// $headers[] = 'Cc: '.$element['nombre'].' <'.$element['email'].'>';
+		// }
 
 		wp_mail( $to, $subject, $body, $headers );
 
@@ -500,6 +530,7 @@ class Abona2_Management_Tool_Admin {
 	public function reject_user() {
 		global $wpdb;
 		$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
+		$email_table = $wpdb->prefix. 'abona2_'."email_configuration";
 		$id_user = $_POST['id_user'];
 		$mensaje = $_POST['mensaje'];
 		$wpdb->query("UPDATE $member_table SET estado_id = 3 WHERE id='$id_user'");
@@ -526,12 +557,22 @@ class Abona2_Management_Tool_Admin {
 				$templateAdmin = str_replace('{{ '.$key.' }}', $value, $templateAdmin);
 			}
 
-		$to = 'contacto@nube.site';
+
+
+		
+
+		$to = $user_email;
 		$subject = 'SU SOLICITUD FUE RECHAZADA';
 		$body = $templateAdmin;
 		$headers = array('Content-Type: text/html; charset=UTF-8');
-		$headers[] = 'From: SCCC <contacto@nube.site>';
-		$headers[] = 'Cc: '.$user_name.' '.$user_lastname.' <'.$user_email.'>';
+		$headers[] = 'From: Sociedad Chilena de Ciencia de la Computación <contacto@nube.site>';
+
+		// $prepared_email_qry = $wpdb->prepare("SELECT email, nombre FROM $email_table WHERE status = %d",1);
+		// $datos_email_config = $wpdb->get_results($prepared_email_qry,ARRAY_A);
+		// foreach($datos_email_config as $element)
+		// {
+		// $headers[] = 'Cc: '.$element['nombre'].' <'.$element['email'].'>';
+		// }
 
 		wp_mail( $to, $subject, $body, $headers );
 
