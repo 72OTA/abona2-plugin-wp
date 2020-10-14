@@ -46,10 +46,12 @@ class Abona2_Management_Tool_Activator {
 		(new self)->tbl_url_after_payment();
 		(new self)->tbl_create();
 		(new self)->tbl_email_configuration();
+		// (new self)->tbl_email_templates();
 		(new self)->rlt_tables();
 		(new self)->page_pre_reg();
 		(new self)->page_complete_reg();
 		(new self)->create_dir();
+		
 	}
 
 	public function tbl_users() {
@@ -135,11 +137,11 @@ class Abona2_Management_Tool_Activator {
 		  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
 		$insert = "INSERT INTO $table_name (`grade_id`, `nombre`) VALUES
-		(1, 'Estudiante'),
+		(1, 'Ninguno (Estudiante o Técnico)'),
 		(2, 'Licenciado'),
 		(3, 'Magister'),
 		(4, 'Doctorado'),
-		(5, 'Post-Doctorado');";
+		(5, 'Bachiller');";
 
 		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
 			dbDelta($create);
@@ -241,7 +243,7 @@ class Abona2_Management_Tool_Activator {
 			`id` int(11) NOT NULL AUTO_INCREMENT,
 			`email` varchar(250) NOT NULL,
 			`nombre` varchar(250) NOT NULL,
-			`status` bit(1) NOT NULL DEFAULT b'0',
+			`status` bit(1) NOT NULL DEFAULT b'1',
 			`modificationDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY(id)
 			) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
@@ -398,6 +400,17 @@ class Abona2_Management_Tool_Activator {
 			)
 		);
 		$pre_registro = '
+								<style>
+								#termsConditions > div > div > div.modal-body > p{
+									padding-left:20%;
+								}
+								#termsConditions > div > div > div.modal-body > ol{
+									padding-left:20%;
+								}
+								#termsConditions > div > div > div.modal-body > ul{
+									padding-left:20%;
+								}
+								</style>
 								<div class="row">
 									<div class="col-md-12">
 										<form name="registration" id="registration">
@@ -432,7 +445,7 @@ class Abona2_Management_Tool_Activator {
 													<div class="form-check form-check-inline">
 														<input class="form-check-input" type="radio" name="vinculo"
 															id="op2" value="2">
-														<label class="form-check-label" for="op2">Enseñanza</label>
+														<label class="form-check-label" for="op2">Academia (Profesores y estudiantes)</label>
 													</div>
 													<div class="form-check form-check-inline">
 														<input class="form-check-input" type="radio" name="vinculo"
@@ -445,7 +458,7 @@ class Abona2_Management_Tool_Activator {
 											<div class="form-row row">
 												<div class="form-group col-md-12"><label for="comment">¿Cuál es su motivación para ser miembro de la SCCC?</label>
 													<textarea class="form-control" name="comment" id="comment"
-														type="text" placeholder="Quiero ser parte de la sccc ya que..."
+														type="text" placeholder="Quiero ser parte de la sccc porque..."
 														rows="3" minlength="200" maxlength="1500"
 														required=""></textarea></div>
 											</div>
@@ -454,12 +467,7 @@ class Abona2_Management_Tool_Activator {
 												<div class="col">
 													<input type="checkbox"
 														class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox"
-														name="terms" id="terms"><span class="woocommerce-terms-and-conditions-checkbox-text">He leídoy acepto la totalidad de los<button type="button" data-toggle="modal"
-															data-target="#termsConditions"
-															class="woocommerce-terms-and-conditions-link"
-															style="font-weight: bold;">Estatutos de la
-															Sociedad Chilena de las Ciencias de la Computación.
-														</button> Así como también declaro la veracidad de la información entregada en este formulario de postulación para membresía.*
+														name="terms" id="terms"><span class="woocommerce-terms-and-conditions-checkbox-text">He leído y acepto la totalidad de los <a data-toggle="modal" data-target="#termsConditions" class="woocommerce-terms-and-conditions-link" style="font-weight: bold; font-size:18px;">Estatutos de la Sociedad Chilena de las Ciencias de la Computación.</a> Así como también declaro la veracidad de la información entregada en este formulario de postulación para membresía.*
 													</span>
 												</div>
 											</div>
@@ -492,8 +500,8 @@ class Abona2_Management_Tool_Activator {
 											</div>
 
 											<div class="modal-body" style="overflow-y:scroll;">
-												<h1 style="text-align: center;">ESTATUTOS</h1>
-												<h2 style="text-align: center;">"SOCIEDAD CHILENA DE CIENCIA DE
+												<h1 class="text-center">ESTATUTOS</h1>
+												<h2 class="text-center">"SOCIEDAD CHILENA DE CIENCIA DE
 													LA COMPUTACIÓN"</h2>
 												<p>
 													EN SANTIAGO DE CHILE, a doce de diciembre de mil novecientos
@@ -533,7 +541,7 @@ class Abona2_Management_Tool_Activator {
 													continuación:- "ESTATUTOS DE LA SOCIEDAD CHILENA DE
 													CINCIA DE LA COMPUTACION.
 												</p>
-												<h3>TITULO PRIMERO.- Nombre, Objeto, domicilio y duración.</h3>
+												<h3 class="text-center">TITULO PRIMERO.- Nombre, Objeto, domicilio y duración.</h3>
 												<p>
 													<b>ARTICULO PRIMERO:</b> Constitúyese una Corporación de
 													Derecho Privado, bajo el nombre de
@@ -596,7 +604,7 @@ class Abona2_Management_Tool_Activator {
 													<b>ARTICULO QUINTO:</b> El número de socios será ilimitado y
 													la duración de la Corporación indefinida.
 												</p>
-												<h3>TITULO SEGUNDO.- De los Socios.</h3>
+												<h3 class="text-center">TITULO SEGUNDO.- De los Socios.</h3>
 												<p>
 													<b>ARTICULO SEXTO:</b> Podrán pertenecer a la Sociedad
 													Chilena de Ciencia de la Computación todas aquellas
@@ -743,7 +751,7 @@ class Abona2_Management_Tool_Activator {
 													de las renuncias en la primera reunión después de
 													presentadas.
 												</p>
-												<h3>TITULO TERCERO.- De las Asambleas Generales.</h3>
+												<h3 class="text-center">TITULO TERCERO.- De las Asambleas Generales.</h3>
 												<p>
 													<b>ARTICULO DECIMO CUARTO:</b> La Asamblea General es la
 													máxima autoridad de la Corporación y estará formada por
@@ -816,7 +824,7 @@ class Abona2_Management_Tool_Activator {
 													como Secretario el que lo sea de la Corporación o la persona
 													que haga sus veces.
 												</p>
-												<h3>TITULO CUARTO.- Del Directorio.</h3>
+												<h3 class="text-center">TITULO CUARTO.- Del Directorio.</h3>
 												<p>
 													<b>ARTICULO DECIMO NOVENO:</b> La dirección y administración
 													de la Corporación estará a cargo de un Directorio compuesto
@@ -1011,7 +1019,7 @@ class Abona2_Management_Tool_Activator {
 														artículo Vigésimo Noveno.</li>
 												</ol>
 												<p></p>
-												<h3>TITULO QUINTO.- Del Patrimonio.</h3>
+												<h3 class="text-center">TITULO QUINTO.- Del Patrimonio.</h3>
 												<p>
 													<b>ARTICULO TRIGESIMO SEGUNDO:</b> El patrimonio inicial de
 													la corporación lo constituye la suma de cien mil pesos que
@@ -1032,7 +1040,7 @@ class Abona2_Management_Tool_Activator {
 													con los bienes que a cualquier título adquiera o posea, con
 													sus frutos e intereses.
 												</p>
-												<h3>TITULO SEXTO.- De la modificación de los estatutos y
+												<h3 class="text-center">TITULO SEXTO.- De la modificación de los estatutos y
 													disolución de la entidad.</h3>
 												<p>
 													<b>ARTICULO TRIGESIMO CUARTO:</b> Se podrán modificar los
@@ -1236,11 +1244,11 @@ class Abona2_Management_Tool_Activator {
 		<div class="form-group col-md-6">
 													<label for="grade">Grado académico</label>
 		<select class="form-control" name="grade" id="grade" type="text" placeholder="Seleccione una opción" required="">
-		<option value="1">Estudiante</option>
+		<option value="1">Ninguno (Estudiante o Técnico)</option>
+		<option value="5">Bachiller</option>
 		<option value="2">Licenciado</option>
 		<option value="3">Magister</option>
 		<option value="4">Doctorado</option>
-		<option value="5">Post-Doctorado</option>
 		</select></div>
 		<div class="form-group col-md-6">
 													<label for="institution">Institución académica o laboral, a la cual pertenece</label>
@@ -1262,10 +1270,11 @@ class Abona2_Management_Tool_Activator {
 		<div class="form-row row">
 												<input class="form-control d-none" name="token" id="token" type="text">
 		<div class="form-group col-md-12">
-													<label for="customFile">El formato debe ser PDF y no mayor a 5mb</label>
+													<label for="customFile"></label>
 		<div class="custom-file" id="customFile" lang="es">
 														<input type="file" class="form-control custom-file-input" id="inputFile" name="inputFile" aria-describedby="fileHelp" accept="application/pdf">
-		<label class="custom-file-label" for="inputFile">Seleccionar archivo que certifique su: titulo profesional, grado académico, certificado de alumno regular o contrato de trabajo.</label></div>
+														<span>El formato debe ser PDF y no mayor a 5mb</span>
+		<label class="custom-file-label" for="inputFile">Seleccionar archivo que acredite su vínculo con la ciencia de la computación (titulo profesional, grado académico, certificado de alumno regular o contrato)</label></div>
 		</div>
 		</div>
 		</form>
@@ -1304,4 +1313,21 @@ class Abona2_Management_Tool_Activator {
 		// $upload_dir = $upload['basedir'];
 		// $upload_dir = $upload_dir . '/mypluginfiles';
 	}
+
+	public function tbl_email_templates() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'abona2_'. 'email_templates';
+		$create = "CREATE TABLE $table_name (
+			`id` int(11) NOT NULL AUTO_INCREMENT,
+			`name` varchar(250) NOT NULL,
+			`template` varchar(21845) NOT NULL,
+			`modificationDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY(id)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			dbDelta($create);
+		}
+	}
+
 }

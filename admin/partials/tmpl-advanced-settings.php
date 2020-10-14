@@ -204,9 +204,9 @@ global $wpdb;
                         <td><a href='mailto:".$print->email."'>$print->email</a></td>
                         <td>$print->status</td>";
                         if ($print->status == 1) {
-                            echo "<td width='25%'><button class='btn btn-info' onclick='getUserData($print->id,3)'>Desactivar</button><a class='btn btn-danger' href='admin.php?page=abona2/Abonados.php&del=$print->id'>Eliminar</a></td>";
+                            echo "<td width='25%'><a class='btn btn-info' href='admin.php?page=abona2-settings&desactivar=$print->id'>Desactivar</a><a class='btn btn-danger' href='admin.php?page=abona2-settings&eliminar=$print->id'>Eliminar</a></td>";
                         }else{
-                            echo "<td width='25%'><button class='btn btn-info' onclick='getUserData($print->id,3)'>Activar</button><a class='btn btn-danger' href='admin.php?page=abona2/Abonados.php&del=$print->id'>Eliminar</a></td>";
+                            echo "<td width='25%'><a class='btn btn-info' href='admin.php?page=abona2-settings&activar=$print->id'>Activar</a><a class='btn btn-danger' href='admin.php?page=abona2-settings&eliminar=$print->id'>Eliminar</a></td>";
 
                         }
                 }
