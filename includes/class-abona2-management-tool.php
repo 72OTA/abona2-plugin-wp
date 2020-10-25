@@ -184,9 +184,9 @@ class Abona2_Management_Tool {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_action("wp_ajax_abona2_insert_user_data", $plugin_public, 'insert_user_data');
-		$this->loader->add_action("wp_ajax_abona2_update_user_data", $plugin_public, 'update_user_data');
-		$this->loader->add_action("wp_ajax_abona2_get_token", $plugin_public, 'get_token');
+		$this->loader->add_action("wp_ajax_nopriv_abona2_insert_user_data", $plugin_public, 'insert_user_data');
+		$this->loader->add_action("wp_ajax_nopriv_abona2_update_user_data", $plugin_public, 'update_user_data');
+		$this->loader->add_action("wp_ajax_nopriv_abona2_get_token", $plugin_public, 'get_token');
 
 	}
 

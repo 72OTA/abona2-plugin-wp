@@ -77,6 +77,7 @@ class Abona2_Management_Tool_Activator {
 			`modificationDate` datetime DEFAULT CURRENT_TIMESTAMP,
 			`estado_id` int(11) NOT NULL DEFAULT '1',
 			`create_id` int(11) NOT NULL DEFAULT '1',
+			`member_type` int(11) NOT NULL DEFAULT '1',
 			PRIMARY KEY(id),
 			UNIQUE(rut)
 		  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci COMMENT='Tabla para el pre registro de miembros';";
@@ -98,7 +99,7 @@ class Abona2_Management_Tool_Activator {
 
 		$insert = "INSERT INTO $table_name (`vinculo_id`, `nombre`) VALUES
 		(1, 'Investigación científica'),
-		(2, 'Enseñanza'),
+		(2, 'Academia (Profesores y estudiantes)'),
 		(3, 'Ejercicio profesional');";
 
 		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
@@ -413,8 +414,16 @@ class Abona2_Management_Tool_Activator {
 								</style>
 								<div class="row">
 									<div class="col-md-12">
+									<h3 class="text-center">Tipo de membresía</h3>
 										<form name="registration" id="registration">
 											<div class="form-row row">
+											<div class="col-md-4"></div>
+										    <div class="form-group col-md-6"> 
+												<select class="form-control" name="memberType" id="memberType" type="text" placeholder="Seleccione una opción" required="" style=" width: 400px; text-align-last:center;">
+													<option value="1" selected="">Individual</option>
+													<option value="2">Institucional</option>
+												</select>
+											</div>
 												<div class="form-group col-md-6"><label for="firstname">Nombres</label>
 													<input class="form-control" name="firstname" id="firstname"
 														type="text" placeholder="Mi nombre" required=""></div>
@@ -1252,7 +1261,7 @@ class Abona2_Management_Tool_Activator {
 		</select></div>
 		<div class="form-group col-md-6">
 													<label for="institution">Institución académica o laboral, a la cual pertenece</label>
-		<input class="form-control" name="institution" id="institution" type="text" placeholder="UNAB"></div>
+		<input class="form-control" name="institution" id="institution" type="text" placeholder="Institución"></div>
 		</div>
 		<div class="form-row row">
 		<div class="form-group col-md-6">

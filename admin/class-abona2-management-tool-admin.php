@@ -756,11 +756,11 @@ class Abona2_Management_Tool_Admin {
 		$failUrl = $fail->post_name;
 
 
-		if ( ! $order->has_status( 'failed' ) ) {
+		if ( $order->has_status( 'wc-completed' ) ) {
 			$url = get_site_url().'/'.$successUrl;
 			wp_safe_redirect( $url );
 			exit;
-		}else if($order->has_status( 'failed' )){
+		}else if($order->has_status( 'wc-failed' )){
 			$url = get_site_url().'/'.$failUrl;
 			wp_safe_redirect( $url );
 			exit;

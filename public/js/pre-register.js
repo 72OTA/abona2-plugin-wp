@@ -17,10 +17,19 @@ function form_validation() {
         document.getElementById("lastname").setAttribute("class","form-control is-valid");
     }
 
+    var customer_rut = document.forms["registration"]["rut"].value;
+    if (checkRut(customer_rut)) {
+        document.getElementById("rut").setAttribute("class","form-control is-valid");
+    }else{
+        document.getElementById("rut").setAttribute("class","form-control is-invalid invalido");
+        alertar('El RUT es invalido, debe llevar el formado de #.###.###-#');
+        return false;
+    }
+
     var customer_message = document.forms["registration"]["comment"].value;
-    if (customer_message == "" || customer_message == null || customer_message.length < 200) {
+    if (customer_message == null || customer_message.length < 130 && customer_message != 0) {
         document.getElementById("comment").setAttribute("class","form-control is-invalid invalido");
-        alertar('La declaración de motivación debe contener un mínimo de 200 caracteres');
+        alertar('La declaración de motivación debe contener un mínimo de 130 caracteres');
         return;
     }else{
         document.getElementById("comment").setAttribute("class","form-control is-valid");
@@ -34,15 +43,6 @@ function form_validation() {
         need.push(document.getElementById("mail"));
     }else{
         document.getElementById("mail").setAttribute("class","form-control is-valid");
-    }
-
-    var customer_rut = document.forms["registration"]["rut"].value;
-    if (!validar(customer_rut)) {
-        document.getElementById("rut").setAttribute("class","form-control is-invalid invalido");
-        alertar('El rut ingresado es invalido.');
-    }else{
-        document.getElementById("rut").setAttribute("class","form-control is-valid");
-        formato_estandar(customer_rut);
     }
 
     if (need.length>0) {
@@ -64,19 +64,24 @@ function form_validation() {
         return;
     }
     // return true;
-    var form = jQuery('#registration');
+    enviar();
+}
+
+var enviar = () => {
+    var form = jQuery('#registration')[0];
+    var data = new FormData(form);
+    data.append('action','abona2_insert_user_data');
     jQuery.ajax({
         url : abona2_user.ajaxurl,
         type : 'post',
-        data : {
-            action: 'abona2_insert_user_data',
-            form: form.serialize()
-        }, 
+        data : data, 
+        dataType: 'json',
+        contentType: false,
+        processData: false,
         beforeSend: function () {
-            jQuery('#loadingModal').show();
+            alertar(`<div class="loader"></div>`,'Enviando solicitud');
         },
         success: function (resp) {
-            jQuery('#loadingModal').hide();
             alertify.alert('pre-registro completado', `Gracías ${resp.firstname + ' ' + resp.lastname}, 
             tu pre registro se realizo de manera correcta. Espera un correo electrónico de confirmación. Serás redirigido a la página principal.`
             ,function(){ 
@@ -84,58 +89,70 @@ function form_validation() {
             );
         },
         error: function (e) {
-            jQuery('#loadingModal').hide();
-            alertar(`${e.responseJSON['data']}, serás redirigido a la página de socios para revisar tu membresía`,'Valor ya registrado'),
+            console.log(e);
+            alertar(`${e.responseJSON.data}, serás redirigido a la página de socios para revisar tu membresía`,'Valor ya registrado'),
             function(){
                 window.location = "/socios";
             };
         }
     }).responseJSON;
-}
+  }
+
 function aceptarTerms() {
     document.getElementById("terms").checked = true;
 }
-function formatear(rut) {
-    var tmp = this.quitar_formato(rut);
-    var rut = tmp.substring(0, tmp.length - 1),
-        f = "";
-    while (rut.length > 3) {
-        f = '.' + rut.substr(rut.length - 3) + f;
-        rut = rut.substring(0, rut.length - 3);
-    }
-    return (rut.trim() == '') ? '' : rut + f + "-" + tmp.charAt(tmp.length - 1);
-};
-
-function quitar_formato(rut) {
-    rut = rut.split('-').join('').split('.').join('');
-    return rut;
-};
-
-function formato_estandar(rut){
-    rut = rut.split('.').join('');
-    document.getElementById("rut").value = rut;
-}
-
-function res(rut) {
-    var M = 0,
-        S = 1;
-    for (; rut; rut = Math.floor(rut / 10))
-        S = (S + rut % 10 * (9 - M++ % 6)) % 11;
-    return S ? S - 1 : 'k';
-};
-
-function validar(rut) {
-    rut = formatear(rut);
-    if (!/[0-9]{1,2}.[0-9]{3}.[0-9]{3}-[0-9Kk]{1}/.test(rut))
-        return false;
-    var tmp = rut.split('-');
-    var dv = tmp[1],
-        rut = tmp[0].split('.').join('');
-    if (dv == 'K') dv = 'k';
-    return (res(rut) == dv);
-};
 
 function alertar(valor,titulo = '<h3>Faltan Datos</h3>'){
     alertify.alert(titulo,'<h5><b>'+valor+'</b></h5>').set({transition:'zoom'});
+};
+
+function checkRut(rut) {
+    // Despejar Puntos
+    var valor = rut.replaceAll('.','');
+    // Despejar Guión
+    var rutSinPuntos = valor;
+    valor = valor.replaceAll('-','');
+    
+    // Aislar Cuerpo y Dígito Verificador
+    cuerpo = valor.slice(0,-1);
+    dv = valor.slice(-1).toUpperCase();
+    
+    // Formatear RUN
+    rut.value = cuerpo + '-'+ dv
+    
+    // Si no cumple con el mínimo ej. (n.nnn.nnn)
+    if(cuerpo.length < 7) { alertar("RUT Incompleto"); return false;}
+    
+    // Calcular Dígito Verificador
+    suma = 0;
+    multiplo = 2;
+    
+    // Para cada dígito del Cuerpo
+    for(i=1;i<=cuerpo.length;i++) {
+    
+        // Obtener su Producto con el Múltiplo Correspondiente
+        index = multiplo * valor.charAt(cuerpo.length - i);
+        
+        // Sumar al Contador General
+        suma = suma + index;
+        
+        // Consolidar Múltiplo dentro del rango [2,7]
+        if(multiplo < 7) { multiplo = multiplo + 1; } else { multiplo = 2; }
+  
+    }
+    
+    // Calcular Dígito Verificador en base al Módulo 11
+    dvEsperado = 11 - (suma % 11);
+    
+    // Casos Especiales (0 y K)
+    dv = (dv == 'K')?10:dv;
+    dv = (dv == 0)?11:dv;
+    
+    // Validar que el Cuerpo coincide con su Dígito Verificador
+    if(dvEsperado != dv) { alertar("RUT Inválido"); return false; }
+    
+    // Si todo sale bien, eliminar errores (decretar que es válido)
+    document.forms["registration"]["rut"].value = rutSinPuntos;
+    return true;
 }
 

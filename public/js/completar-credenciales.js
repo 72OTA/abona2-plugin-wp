@@ -111,17 +111,15 @@ var enviar = () => {
         contentType: false,
         processData: false,
         beforeSend: function () {
-            jQuery('#loadingModal').show();
+            alertar(`<div class="loader"></div>`,'Enviando solicitud');
         },
         success: function (resp) {
-            jQuery('#loadingModal').hide();
-            alertify.alert('Registro completado', `Gracías tu registro se completo de manera correcta, solo debieses esperar el correo con la respuesta del encargado, para finalizar tu proceso`,
+            alertify.alert('Registro completado', `Gracías tu registro se completo de manera correcta. Te enviaremos un correo con la respuesta de la solicitud de membresía.`,
             function(){ 
-            window.location = "/finalizado";}
+            window.location = "/";}
             );
         },
         error: function (e) {
-            jQuery('#loadingModal').hide();
             if (e.responseJSON.data == 'Token invalido o vencido') {
                 document.getElementById("botonera").innerHTML += `<button id="solicitar_token" class="btn btn-modern btn-lg btn-gradient btn-full-rounded" onclick="solicitar_token()">Solicitar nuevo token</button>`;
             }

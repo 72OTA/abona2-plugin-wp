@@ -5,12 +5,12 @@ global $wpdb;
 $table_name = $wpdb->prefix . 'abona2_' . 'pre_register_member';
 $table_historic = 'abona2_scc_historico';
 
-$pre_register = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 1");
-$register_complete = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 2");
-$rejected_members = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 3");
-$pay_pending = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 4");
-$members = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 5");
-$all = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+$pre_register = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 1 AND member_type=1");
+$register_complete = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 2 AND member_type=1");
+$rejected_members = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 3 AND member_type=1");
+$pay_pending = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 4 AND member_type=1");
+$members = $wpdb->get_var("SELECT COUNT(*) FROM $table_name where estado_id = 5 AND member_type=1");
+$all = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE member_type=1");
 $historic = $wpdb->get_var("SELECT COUNT(*) FROM $table_historic WHERE tipo_socio = 'Individual'");
 ?>
 

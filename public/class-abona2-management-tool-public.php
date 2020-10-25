@@ -20,7 +20,6 @@
  * @subpackage Abona2_Management_Tool/public
  * @author     Felipe Andrade <f.andradevalenzuela@gmail.com>
  */
-
 class Abona2_Management_Tool_Public {
 	
 
@@ -138,18 +137,15 @@ class Abona2_Management_Tool_Public {
 		global $wpdb;
 
 		//get del formulario
-		$problemas = [];
-		$params = array();
-		parse_str($_POST['form'],$params);
-		// print_r($params);
-		$firstname = $params['firstname'];
-		$lastname = $params['lastname'];
-		$rut = $params['rut'];
-		$correo = $params['mail'];
-		$comment = $params['comment'];
-		$terms = $params['terms'];
-		$vinc = $params['vinculo'];
+		$firstname = $_POST['firstname'];
+		$lastname = $_POST['lastname'];
+		$rut = $_POST['rut'];
+		$correo = $_POST['mail'];
+		$comment = $_POST['comment'];
+		$terms = $_POST['terms'];
+		$vinc = $_POST['vinculo'];
 		$asunto = 'Pre registro SCCC';
+		$member_type = $_POST['memberType'];
 
 		$this->verificarCorreo($correo); 
 		$this->verificarRut($rut);
@@ -160,8 +156,8 @@ class Abona2_Management_Tool_Public {
 			$validation_table = $wpdb->prefix. 'abona2_'."validation_email";
 
 			$wpdb->query(
-				$wpdb->prepare("INSERT INTO $member_table ( nombre, apellido, rut, email,observaciones, vinculo_id, terms) 
-				VALUES ( %s, %s, %s, %s,%s, %d, %s)",$firstname,$lastname,$rut,$correo,$comment,$vinc,$terms)
+				$wpdb->prepare("INSERT INTO $member_table ( nombre, apellido, rut, email,observaciones, vinculo_id, terms, member_type) 
+				VALUES ( %s, %s, %s, %s,%s, %d, %s, %d)",$firstname,$lastname,$rut,$correo,$comment,$vinc,$terms,$member_type)
 			);
 			
 			$user_id = $wpdb->insert_id;
@@ -231,48 +227,6 @@ class Abona2_Management_Tool_Public {
 	
 		$this->verificarToken($token);
 		$this->verificarCorreo($secondMail);
-		try {
-			// Indefinido | Multiples archivos | $_FILES Ataque de corrupción
-			// si el request se cae en cualquiera de estos, el request es invalido.
-			if (!isset($_FILES['inputFile']['error']) ||
-				is_array($_FILES['inputFile']['error'])) 
-				{
-				wp_send_json_error( 'Archivo con parametros invalidos.', 400 );
-				wp_die();
-			}
-			 // Check $_FILES['inputFile']['error'] value.
-			switch ($_FILES['inputFile']['error']) {
-			case UPLOAD_ERR_OK:
-				break;
-			case UPLOAD_ERR_NO_FILE:
-				wp_send_json_error( 'No se envio el archivo.', 400 );
-				wp_die();
-			case UPLOAD_ERR_INI_SIZE:
-			case UPLOAD_ERR_FORM_SIZE:
-				wp_send_json_error( 'El archivo excede el tamaño maximo permitido.', 400 );
-				wp_die();
-			default:
-				wp_send_json_error( 'Error desconocido con el archivo.', 400 );
-				wp_die();
-			}
-	
-			// NO CONFIAR EN VALORES $_FILES['inputFile']['mime']!!
-			// Checkear Tipo MIME uno mimso .
-			$finfo = new finfo(FILEINFO_MIME_TYPE);
-			if (false === $ext = array_search(
-			$finfo->file($_FILES['inputFile']['tmp_name']),
-			array(
-				'pdf' => 'application/pdf'
-			),true)) 
-			{
-				wp_send_json_error( 'Formato del archivo invalido.', 400 );
-				wp_die();
-			}
-			
-		} catch (RuntimeException $e) {
-			wp_send_json_error( $e, 400 );
-			wp_die();
-		}
 
 		try{ 
 			$member_table = $wpdb->prefix. 'abona2_'."pre_register_member";
@@ -287,15 +241,37 @@ class Abona2_Management_Tool_Public {
 			$user_id = $obj_validation['userId'];
 			$token_id = $obj_validation['id'];
 
+
+			$finfo = new finfo(FILEINFO_MIME_TYPE);
+			$ext = array_search(
+				$finfo->file($_FILES['inputFile']['tmp_name']),
+				array(
+					'pdf' => 'application/pdf'
+				),true);
+
+			$file_encrypt = sha1_file($_FILES['inputFile']['tmp_name']).$user_id.".".$ext;
 			$uploads_dir = trailingslashit( wp_upload_dir()['baseurl'] ) . 'member-attachments/';
-			$filenameDestination =   sprintf($uploads_dir.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']).$user_id,$ext);
-			$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'/%s.%s',sha1_file($_FILES['inputFile']['tmp_name']),$ext);
-			
+			$filenameDestination =   sprintf($uploads_dir.'/%s',$file_encrypt);
+			$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'%s',$file_encrypt);
+			$destination_folder = $_SERVER['DOCUMENT_ROOT'].'/sccc-dev/wp-content/uploads/member-attachments/'.$file_encrypt;
+			// $destination_folder = '/home/nube/public_html/wp-content/uploads/member-attachments/'.sha1_file($_FILES['inputFile']['tmp_name']).".".$ext; PRODUCTIVO
+			// $newfname = $destination_folder .sha1_file($_FILES['inputFile']['tmp_name']).$ext; //set your file ext
+			// $url = get_site_url();
+			// $fullUrl = $url.$uploads_dir.$_FILES['inputFile']['tmp_name'].$ext;
+
+			// $uploaded_file = wp_handle_upload($_FILES['input_file'], array('test_form' => false));
+
+			// if ( $uploaded_file && ! isset( $uploaded_file['error'] ) ) {
+			// 	echo __( 'File is valid, and was successfully uploaded.', 'textdomain' ) . "\n";
+  			// 	  var_dump( $uploaded_file );
+			// }else{
+			// 	echo $uploaded_file['error'];
+			// }
 			// Debemos nombrarlo de manera unica
 			// NO USAR $_FILES['inputFile']['name'] SIN NINGUNA VALIDACION !!
 			// En este ejemplo, obtenemos un unico nombre seguro desde su data binaria.
 			if (!move_uploaded_file(
-				$_FILES['inputFile']['tmp_name'],$filenameDestination)) 
+				$_FILES['inputFile']['tmp_name'],$destination_folder)) 
 			{
 				wp_send_json_error('Fallo al intentar mover el archivo subido', 400 );
 				wp_die();

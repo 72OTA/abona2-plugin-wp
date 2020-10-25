@@ -103,10 +103,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-abona2-management-tool.php
  * @since    1.0.0
  */
 function run_abona2_management_tool() {
-	if (abona2_check_requirements()) {
+	// if (abona2_check_requirements()) {
 		$plugin = new Abona2_Management_Tool();
 		$plugin->run();       
-    }
+    // }
 	
 
 }
