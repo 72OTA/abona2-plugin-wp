@@ -292,7 +292,7 @@ class Abona2_Management_Tool_Activator {
 
 		$change_token_status = "CREATE PROCEDURE `change_token_status`() COMMENT 'Update estado de validation token' 
 		NOT DETERMINISTIC MODIFIES SQL DATA SQL SECURITY DEFINER 
-		UPDATE validation_email set estado = 1 WHERE tiempo < CURRENT_TIMESTAMP;";
+		UPDATE $validation set estado = 1 WHERE tiempo < CURRENT_TIMESTAMP;";
 
 		$get_user_for_approval = "CREATE PROCEDURE `get_user_for_approval`(IN `idUsuario` INT(11) UNSIGNED) COMMENT 'SP para obtener los datos del usuario registrado' 
 		NOT DETERMINISTIC READS SQL DATA SQL SECURITY DEFINER 

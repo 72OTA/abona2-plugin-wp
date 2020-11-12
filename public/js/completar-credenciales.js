@@ -121,6 +121,7 @@ var enviar = () => {
         },
         error: function (e) {
             if (e.responseJSON.data == 'Token invalido o vencido') {
+                document.getElementById("registro_completar_credenciales").remove();
                 document.getElementById("botonera").innerHTML += `<button id="solicitar_token" class="btn btn-modern btn-lg btn-gradient btn-full-rounded" onclick="solicitar_token()">Solicitar nuevo token</button>`;
             }
             alertar(e.responseJSON.data,'Error de servidor');
@@ -149,7 +150,10 @@ var enviar = () => {
             },
             success: function (resp) {
                 jQuery('#loadingModal').hide();
-                alertify.success("Su solicitud de token fue enviada de manera correcta");
+                alertify.alert("Solicitud Correcta","Su solicitud de token fue enviada de manera correcta, espere el correo con el nuevo token.",
+                function(){
+                    window.location = "/"
+                });
             },
             error: function (e) {
                 jQuery('#loadingModal').hide();

@@ -68,18 +68,7 @@ class Abona2_Management_Tool_Public {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Abona2_Management_Tool_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Abona2_Management_Tool_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
+		
 		if(is_page("pre-register") || is_page( "completar-credenciales" )) {
 			// wp_enqueue_style( "sweetalert", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/sweetalert.css', array(), $this->version, 'all' );
 			wp_enqueue_style( "fontawesome", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/css/fontawesome.all.css', array(), $this->version, 'all' );
@@ -98,17 +87,6 @@ class Abona2_Management_Tool_Public {
 	 */
 	public function enqueue_scripts() {
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Abona2_Management_Tool_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Abona2_Management_Tool_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 		if(is_page("pre-register") || is_page( "completar-credenciales" )) {
 			wp_enqueue_script( "bootstrap-js", ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . 'assets/js/bootstrap.min.js', array(), $this->version, 'all' );
 			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/abona2-management-tool-public.js', array( 'jquery' ), $this->version, false );
@@ -255,6 +233,7 @@ class Abona2_Management_Tool_Public {
 			$file_url = sprintf(trailingslashit( wp_upload_dir()['baseurl'] ). 'member-attachments/'.'%s',$file_encrypt);
 			$destination_folder = $_SERVER['DOCUMENT_ROOT'].'/sccc-dev/wp-content/uploads/member-attachments/'.$file_encrypt;
 			// $destination_folder = '/home/nube/public_html/wp-content/uploads/member-attachments/'.sha1_file($_FILES['inputFile']['tmp_name']).".".$ext; PRODUCTIVO
+			
 			// $newfname = $destination_folder .sha1_file($_FILES['inputFile']['tmp_name']).$ext; //set your file ext
 			// $url = get_site_url();
 			// $fullUrl = $url.$uploads_dir.$_FILES['inputFile']['tmp_name'].$ext;
@@ -387,7 +366,7 @@ class Abona2_Management_Tool_Public {
 			$prepared_user_qry = $wpdb->prepare("SELECT id,nombre,apellido FROM $member_table WHERE email = %s",$correo);
 			$datos_usuario = $wpdb->get_results($prepared_user_qry,ARRAY_A);
 
-			$obj_usuario = get_object_vars($datos_usuario[0]);
+			$obj_usuario = $datos_usuario[0];
 			$user_id = $obj_usuario['id'];
 			$user_name = $obj_usuario['nombre'];
 			$user_lastname = $obj_usuario['apellido'];
@@ -416,7 +395,8 @@ class Abona2_Management_Tool_Public {
 		$variables['nombre'] = $user_name;
 		$variables['apellido'] = $user_lastname;
 		$variables['token'] = $token;
-	
+		$variables['url'] = get_home_url();
+		
 		$template = file_get_contents(ABONA2_MANAGEMENT_TOOL_PLUGIN_URL . "assets/mails/solicitud-token.html", false, stream_context_create($this->arrContextOptions));
 		foreach($variables as $key => $value)
 			{

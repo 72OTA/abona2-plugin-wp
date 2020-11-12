@@ -20,6 +20,9 @@
  * @subpackage Abona2_Management_Tool/admin
  * @author     Felipe Andrade <f.andradevalenzuela@gmail.com>
  */
+ define('K_PATH_IMAGES', ABSPATH .'wp-content/plugins/abona2-plugin-wp/assets/images/');
+ require(ABSPATH . 'wp-content/plugins/abona2-plugin-wp/assets/library/tcpdf_min/tcpdf.php');
+ require_once(ABSPATH . 'wp-content/plugins/abona2-plugin-wp/assets/library/fpdi/autoload.php');
 
 class Abona2_Management_Tool_Admin {
 	public $arrContextOptions=array(
@@ -29,7 +32,17 @@ class Abona2_Management_Tool_Admin {
 		),
 	); 
 
-	public $valid_pages = array("abona2-insert-traditional","abona2-insert-honorific","all-users-historico","abona2-management-tool","abona2-management-institutional","members-management","pending-approve-management","pending-pay-management","pre-members-management","rejected-members-management","abona2-settings","all-users-management");
+	public $valid_pages = array("abona2-insert-traditional",
+	"abona2-insert-honorific",
+	"all-users-historico",
+	"abona2-management-tool",
+	"abona2-management-institutional",
+	"members-management",
+	"pending-approve-management",
+	"pending-pay-management",
+	"pre-members-management",
+	"rejected-members-management",
+	"abona2-settings","all-users-management");
 
 	/**
 	 * The ID of this plugin.
@@ -168,6 +181,14 @@ class Abona2_Management_Tool_Admin {
 			'abona2-management-tool',
 			array($this, "abona2_management_plugin")
 		);
+		// add_submenu_page(
+		// 	"abona2-management-tool", 
+		// 	'pdf',
+		// 	'pdf',
+		// 	'manage_options',
+		// 	'pdf',
+		// 	array($this, "test_pdf")
+		// );
 		add_submenu_page(
 			"abona2-management-tool", 
 			'Dashboard SCCC institucional',
@@ -262,6 +283,10 @@ class Abona2_Management_Tool_Admin {
 		);
 	}
 	
+	// public function test_pdf(){
+	// 	$this->templatePdf();
+	// }
+
 	//funcion callback del menu
 	public function abona2_management_plugin(){
 		global $wpdb;
@@ -735,6 +760,15 @@ class Abona2_Management_Tool_Admin {
 		$prepare_query = $wpdb->prepare("SELECT id FROM $member_table WHERE email = %s",$correo);
 		$id_user = $wpdb->get_var($prepare_query);
 
+		$prepare_query_name = $wpdb->prepare("SELECT nombre FROM $member_table WHERE id = %d",$id_user);
+		$user_name = $wpdb->get_var($prepare_query_name);
+
+		$prepare_query_lastname = $wpdb->prepare("SELECT apellido FROM $member_table WHERE id = %d",$id_user);
+		$user_lastname = $wpdb->get_var($prepare_query_lastname);
+
+		$prepare_query_rut = $wpdb->prepare("SELECT rut FROM $member_table WHERE id = %d",$id_user);
+		$user_rut = $wpdb->get_var($prepare_query_rut);
+
 		try{
 			$wpdb->query("UPDATE $member_table SET estado_id = 5 WHERE id='$id_user'");
 		} catch(Exception $e){ 
@@ -758,6 +792,7 @@ class Abona2_Management_Tool_Admin {
 
 		if ( $order->has_status( 'wc-completed' ) ) {
 			$url = get_site_url().'/'.$successUrl;
+			$this->templatePdf($user_name,$user_lastname,$user_rut);
 			wp_safe_redirect( $url );
 			exit;
 		}else if($order->has_status( 'wc-failed' )){
@@ -766,6 +801,26 @@ class Abona2_Management_Tool_Admin {
 			exit;
 		}
 		
+	}
+
+	public function templatePdf($name,$lastname,$rut) {
+		$pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
+
+		$pagecount = $pdf->setSourceFile(K_PATH_IMAGES . 'certsccc.pdf');
+		$tplidx = $pdf->importPage(1);
+
+		$pdf->addPage();
+		$pdf->useTemplate($tplidx,0,0,null,null,true);
+		$pdf->SetFont('helvetica','B',25);
+		$text = $name.' '.$lastname;
+		// $pdf->Text(86,110,"Eduardo Quiroga");
+		$pdf->Text(150-($pdf->GetStringWIdth($text) /2),110,$text);
+		$pdf->SetFont('helvetica','B',12);
+		$pdf->Text(168,138.5,date("Y"));
+		$destination_folder = $_SERVER['DOCUMENT_ROOT'].'/sccc-dev/wp-content/uploads/member-attachments/'.$rut.date("Y").'.pdf'; //RUTA LOCAL, PARA PRODUCTIVO DEBEMOS CAMBIARLA
+		//$destination_folder = '/home/nube/public_html/wp-content/uploads/member-attachments/'.$rut.date("Y").'.pdf'; //PRODUCTIVO
+		ob_end_clean();
+		$pdf->Output($destination_folder, 'F');
 	}
 	
 	public function create_user() {

@@ -18,7 +18,13 @@
     <?php
       global $wpdb;
       $table_historic = 'abona2_scc_historico';
-      $result = $wpdb->get_results("SELECT * FROM $table_historic WHERE tipo_socio = 'Institucional'");
+      $queries = array();
+      parse_str($_SERVER['QUERY_STRING'], $queries);
+      if(isset($queries['type'])){
+        $result = $wpdb->get_results("SELECT * FROM $table_historic WHERE tipo_socio = 'Institucional'");
+      }else{
+        $result = $wpdb->get_results("SELECT * FROM $table_historic WHERE tipo_socio = 'Individual'");
+      }
     
       foreach ($result as $print) {
         echo "

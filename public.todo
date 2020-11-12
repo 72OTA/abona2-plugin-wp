@@ -1,0 +1,28 @@
+*Abona2* Publico:
+    Registro usuarios: @critical 
+        ✔ Campo asociado en BD @today @15m @started(20-11-03 00:53) @done(20-11-03 01:19) @lasted(26m8s)
+        ✔ Definición de ciclo a cumplir pre registro y completar credenciales @today  @1h @started(20-11-03 02:06) @done(20-11-03 02:56) @lasted(50m39s)
+        ✔ Guardar datos en BD  @today @20m @started(20-11-03 00:53) @done(20-11-03 01:19) @lasted(26m)
+        ✔ Modificar metodo insert_user_data() existente en abona2-management-tool-public @1h @started(20-11-03 23:42) @done(20-11-03 23:59) @lasted(17m34s)
+        ✔ Modificar metodo get_token() existente en abona2-management-tool-public @1h @started(20-11-03 23:42) @done(20-11-04 01:20) @lasted(1h38m28s)
+        ✔ Modificar eventos existentes en DB @2h @started(20-11-03 21:42) @done(20-11-04 01:21) @lasted(3h39m13s)
+        ☐ Crear templates asociados al envio de correos para instituciones @low  @2h
+    Implementación libreria para generar archivos PDF:
+        ✔ Busqueda de libreria @2h @started(20-11-04 01:30) @done(20-11-04 02:03) @lasted(33m24s)
+        ☐ Alcance @30m
+        ☐ Requisitos @15m
+    Busqueda de usuarios de la sociedad:
+        [] Crear api para busqueda de usuarios @2h
+        [] Trabajar forma de visualización de usuarios registrados @3h
+*Abona2* Admin:
+    Aprobar usuarios:
+        [] Diagrama usuario institución @1h
+        [] Diagrama usuario individual @30m
+        ☐ Condiciones a cumplir dependiendo del tipo de usuario 0 - Individual, 1 - Institucional  @today @1h
+    Realizar metodos para cada etapa asociada a los usuarios existentes en el flujo:
+        ☐ Solicitar Pago @1h
+        ☐ Reenviar Correo para completar credenciales @1h
+        ☐ Revisar opciones usuarios rechazados @2h
+
+
+    
